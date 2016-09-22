@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our @CompileChecksumKeys = qw(Global GlobalPackage IncludesDir XMLSubsMatch);
 our @Objects = qw(Application Session Response Server Request);
 
@@ -237,7 +237,7 @@ sub execute {
         @rv = eval { &$subid; };
     }
     if ( $@ ) {
-        die $@ if $@ =~ /catalyst_detach/;
+        die $@ if $@ =~ /catalyst_detach|asp_end/;
         $c->error( "Error executing code: $@" );
     }
 

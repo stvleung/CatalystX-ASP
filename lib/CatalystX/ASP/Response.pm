@@ -146,7 +146,7 @@ sub WriteRef {
 
 sub Clear {
     my ( $self ) = @_;
-    $self->Body( $self->BodySubstr( 0, $self->_flushed_offset ) );
+    $self->Body && $self->Body( $self->BodySubstr( 0, $self->_flushed_offset ) );
     $self->{out} = $self->{BinaryRef} = \( $self->{Body} );
     return;
 }
@@ -181,8 +181,8 @@ sub Flush {
 }
 
 sub End {
-    my ( $self ) = @_;
-    $self->asp->c->detach;
+    shift->Clear;
+    die 'asp_end';
 }
 
 # TODO to implement or not to implement?
@@ -243,7 +243,7 @@ sub TrapInclude {
     my ( $self, $include, @args ) = @_;
 
     my $saved = $self->Body;
-    $self->Clear();
+    $self->Clear;
 
     local $self->{out} = local $self->{BinaryRef} = \( $self->{Body} );
     local *CatalystX::ASP::Response::Flush = sub {};

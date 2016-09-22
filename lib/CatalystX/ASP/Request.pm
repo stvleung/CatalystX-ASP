@@ -102,8 +102,11 @@ sub FileUpload {
 
 sub Form {
     my ( $self, $name ) = @_;
-    my $params = $self->asp->c->request->body_parameters;
-    return $name ? $params->{$name} : $params;
+    my %params = (
+        %{$self->asp->c->request->body_parameters},
+        %{$self->asp->c->request->uploads},
+    );
+    return $name ? $params{$name} : \%params;
 }
 
 sub Params {

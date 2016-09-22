@@ -34,13 +34,17 @@ sub render {
     my ( $self, $c ) = @_;
 
     my $asp = $self->asp( CatalystX::ASP->new({ %{$c->config->{'CatalystX::ASP'}}, c => $c }) );
+    eval {
 
-    my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $c->request->path ) );
+        my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $c->request->path ) );
 
-    $asp->GlobalASA->Script_OnStart;
-    $asp->execute( $c, $compiled->{code} );
-    $asp->GlobalASA->Script_OnEnd;
-
+        $asp->GlobalASA->Script_OnStart;
+        $asp->execute( $c, $compiled->{code} );
+        $asp->GlobalASA->Script_OnEnd;
+    };
+    if ( my $error = $@ ) {
+        die $error if $error !~ m/asp_end/;
+    }
     return $asp->Response->Body;
 }
 

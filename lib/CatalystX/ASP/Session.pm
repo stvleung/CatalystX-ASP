@@ -91,6 +91,9 @@ sub UnLock {
     return;
 }
 
+# TODO: will not implement; not part of API so just no-op
+sub Flush {}
+
 sub TIEHASH {
     my ( $class, $self ) = @_;
     my $c = $self->asp->c;
