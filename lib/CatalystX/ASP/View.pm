@@ -22,6 +22,9 @@ sub process {
     my $content_type = $resp->ContentType;
     $content_type .= "; charset=$charset" if $charset;
     $c->response->content_type( $content_type );
+    for my $name ( keys %{$resp->Cookies} ) {
+        $c->response->cookies->{$name}{value} = $resp->Cookies->{$name};
+    }
     $c->response->header( Cache_Control => $resp->CacheControl );
     $c->response->header( Expires => time2str( time + $resp->Expires ) ) if $resp->Expires;
     $c->response->status( $resp->Status || 200 );

@@ -9,26 +9,119 @@ has 'asp' => (
     required => 1,
 );
 
-has 'FileUpload' => (
-    is => 'rw',
-    isa => 'HashRef',
-    default => sub { {} },
-    traits => [ qw(Hash) ],
-    reader => '_get_FileUpload',
-    writer => '_set_FileUpload',
-    handles => {
-        '_add_FileUpload' => 'set',
-    },
-);
-
 # For some reason, for attributes that start with a capital letter, Moose seems
 # to load the default value before the object is fully initialized. lazy => 1 is
 # a workaround to build the defaults later
+has 'Cookies' => (
+    is => 'ro',
+    isa => 'HashRef',
+    reader => '_get_Cookies',
+    lazy => 1,
+    default => sub {
+        my ( $self ) = @_;
+        my $c = $self->asp->c;
+        my %cookies;
+        for my $name ( keys %{$c->request->cookies} ) {
+            $cookies{$name} = $c->request->cookies->{$name}{value};
+        }
+        return \%cookies;
+    },
+    traits => [ 'Hash' ],
+    handles => {
+        _get_Cookie => 'get',
+    },
+);
+
+has 'FileUpload' => (
+    is => 'ro',
+    isa => 'HashRef',
+    reader => '_get_FileUploads',
+    lazy => 1,
+    default => sub {
+        my ( $self ) = @_;
+        my %uploads;
+        while ( my ( $field, $value ) = each %{$self->asp->c->request->uploads} ) {
+            # Just assume the first upload field, because how Apache::ASP deals with
+            # multiple uploads per-field is beyond me.
+            my $upload = ref( $value ) eq 'ARRAY' ? $value->[0] : $value;
+            $uploads{$field} = {
+                ContentType => $upload->type,
+                FileHandle => $upload->fh,
+                BrowserFile => $upload->filename,
+                TempFile => $upload->tempname,
+            };
+        }
+        return \%uploads;
+    },
+    traits => [ 'Hash' ],
+    handles => {
+        _get_FileUpload => 'get',
+    },
+);
+
+has 'Form' => (
+    is => 'ro',
+    isa => 'HashRef',
+    reader => '_get_Form',
+    lazy => 1,
+    default => sub {
+        my ( $self ) = @_;
+        return {
+            %{$self->asp->c->request->body_parameters},
+            %{$self->asp->c->request->uploads},
+        };
+    },
+    traits => [ 'Hash' ],
+    handles => {
+        _get_FormField => 'get',
+    },
+);
+
 has 'Method' => (
     is => 'ro',
     isa => 'Str',
     lazy => 1,
     default => sub { shift->asp->c->request->method },
+);
+
+has 'Params' => (
+    is => 'ro',
+    isa => 'HashRef',
+    reader => '_get_Params',
+    lazy => 1,
+    default => sub { shift->asp->c->request->parameters },
+    traits => [ 'Hash' ],
+    handles => {
+        _get_Param => 'get',
+    },
+);
+
+has 'QueryString' => (
+    is => 'ro',
+    isa => 'HashRef',
+    reader => '_get_QueryString',
+    lazy => 1,
+    default => sub { shift->asp->c->request->query_parameters },
+    traits => [ 'Hash' ],
+    handles => {
+        _get_Query => 'get',
+    },
+);
+
+has 'ServerVariables' => (
+    is => 'ro',
+    isa => 'HashRef',
+    reader => '_get_ServerVariables',
+    lazy => 1,
+    default => sub {
+        # Populate %ENV
+        %ENV = ( %ENV, %{shift->asp->c->request->env} );
+        return \%ENV;
+    },
+    traits => [ 'Hash' ],
+    handles => {
+        _get_ServerVariable => 'get',
+    },
 );
 
 has 'TotalBytes' => (
@@ -42,24 +135,16 @@ sub BUILD {
     my ( $self ) = @_;
     my $c = $self->asp->c;
 
-    while ( my ( $field, $value ) = each %{$c->request->uploads} ) {
-        my $c_upload = ref( $value ) eq 'ARRAY' ? $value->[0] : $value;
-        my %upload = (
-            ContentType => $c_upload->type,
-            FileHandle => $c_upload->fh,
-            BrowserFile => $c_upload->filename,
-            TempFile => $c_upload->tempname,
-        );
-        $self->_add_FileUpload( $field => \%upload );
-    }
-
     # Due to problem mentioned above in the builder methods, we are calling
     # these attributes to populate the values for the hash key to be available
+    $self->Cookies;
+    $self->FileUpload;
+    $self->Form;
     $self->Method;
+    $self->Params;
+    $self->QueryString;
+    $self->ServerVariables;
     $self->TotalBytes;
-
-    # Populate %ENV
-    %ENV = ( %ENV, %{$c->request->env} );
 }
 
 sub BinaryRead {
@@ -86,44 +171,67 @@ sub ClientCertificate {
 
 sub Cookies {
     my ( $self, $name, $key ) = @_;
-    my $cookies = $self->asp->c->request->cookies;
+    my $cookies = $self->_get_Cookies;
 
-    if ( $key ) {
-        return $cookies->{$name}{value}{$key};
+    if ( $name ) {
+        if ( $key ) {
+            return $self->_get_Cookie( $name )->{$key};
+        } else {
+            return $self->_get_Cookie( $name );
+        }
     } else {
-        return $cookies->{$name};
+        return $self->_get_Cookies;
     }
 }
 
 sub FileUpload {
     my ( $self, $form_field, $key ) = @_;
-    $self->_get_FileUpload( $form_field )->{$key};
+
+    if ( $form_field ) {
+        return $self->_get_FileUpload( $form_field )->{$key};
+    } else {
+        return $self->_get_FileUploads;
+    }
 }
 
 sub Form {
     my ( $self, $name ) = @_;
-    my %params = (
-        %{$self->asp->c->request->body_parameters},
-        %{$self->asp->c->request->uploads},
-    );
-    return $name ? $params{$name} : \%params;
+
+    if ( $name ) {
+        return $self->_get_FormField( $name );
+    } else {
+        return $self->_get_Form;
+    }
 }
 
 sub Params {
     my ( $self, $name ) = @_;
-    my $params = $self->asp->c->request->parameters;
-    return $name ? $params->{$name} : $params;
+
+    if ( $name ) {
+        return $self->_get_Param( $name );
+    } else {
+        return $self->_get_Params;
+    }
 }
 
 sub QueryString {
     my ( $self, $name ) = @_;
-    my $params = $self->asp->c->request->query_parameters;
-    return $name ? $params->{$name} : $params;
+
+    if ( $name ) {
+        return $self->_get_Query( $name );
+    } else {
+        return $self->_get_QueryString;
+    }
 }
 
 sub ServerVariables {
     my ( $self, $name ) = @_;
-    return $name ? $ENV{$name} : \%ENV;
+
+    if ( $name ) {
+        return $self->_get_ServerVariable( $name );
+    } else {
+        return $self->_get_ServerVariables;
+    }
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -66,6 +66,31 @@ has 'ContentType' => (
     default => 'text/html',
 );
 
+# For some reason, for attributes that start with a capital letter, Moose seems
+# to load the default value before the object is fully initialized. lazy => 1 is
+# a workaround to build the defaults later
+has 'Cookies' => (
+    is => 'rw',
+    isa => 'HashRef',
+    reader => '_get_Cookies',
+    writer => '_set_Cookies',
+    lazy => 1,
+    default => sub {
+        my ( $self ) = @_;
+        my $c = $self->asp->c;
+        my %cookies;
+        for my $name ( keys %{$c->response->cookies} ) {
+            $cookies{$name} = $c->response->cookies->{$name}{value};
+        }
+        return \%cookies;
+    },
+    traits => [ 'Hash' ],
+    handles => {
+        _get_Cookie => 'get',
+        _set_Cookie => 'set',
+    },
+);
+
 # This attribute currently has no effect
 has 'Debug' => (
     is => 'ro',
@@ -117,6 +142,10 @@ has 'Status' => (
 sub BUILD {
     my ( $self ) = @_;
 
+    # Due to problem mentioned above in the builder methods, we are calling
+    # these attributes to populate the values for the hash key to be available
+    $self->Cookies;
+
     no warnings 'redefine';
     *TIEHANDLE = sub { $self };
     $self->{out} = $self->{BinaryRef} = \( $self->{Body} );
@@ -153,17 +182,18 @@ sub Clear {
 
 sub Cookies {
     my ( $self, $name, @cookie ) = @_;
-    my $cookies = $self->asp->c->response->cookies;
 
-    if ( @cookie == 1 ) {
+    if ( @cookie == 0 ) {
+        return $self->_get_Cookies;
+    } elsif ( @cookie == 1 ) {
         my $value = $cookie[0];
-        $cookies->{$name} = { value => $value };
+        return $self->_set_Cookie( $name => $value );
     } else {
         my ( $key, $value ) = @cookie;
-        if ( my $existing = $cookies->{$name} ) {
-            $existing->value->{$key} = $value;
+        if ( my $existing = $self->_get_Cookie( $name ) ) {
+            return $existing->{$key} = $value;
         } else {
-            $cookies->{$name} = { value => { $key => $value } };
+            return $self->_set_Cookie( $name => { $key => $value } );
         }
     }
 }
