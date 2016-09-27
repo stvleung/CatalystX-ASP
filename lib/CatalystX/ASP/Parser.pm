@@ -25,29 +25,37 @@ sub _build_parsed_object {
 sub parse {
     my ( $self, $c, $scriptref ) = @_;
 
-    $self->GlobalASA->Script_OnParse;
-    $scriptref = $self->_parse_ssi( $c, $scriptref );
-    my $parsed_scriptref = $self->_parse_asp( $c, $scriptref );
-    if ( $parsed_scriptref ) {
-        return $self->_build_parsed_object( $parsed_scriptref, is_perl => 1 );
-    } else {
-        return $self->_build_parsed_object( $scriptref, is_raw => 1 );
+    my $parsed_object = eval {
+        $self->GlobalASA->Script_OnParse;
+        $scriptref = $self->_parse_ssi( $c, $scriptref );
+        my $parsed_scriptref = $self->_parse_asp( $c, $scriptref );
+        if ( $parsed_scriptref ) {
+            return $self->_build_parsed_object( $parsed_scriptref, is_perl => 1 );
+        } else {
+            return $self->_build_parsed_object( $scriptref, is_raw => 1 );
+        }
+    };
+    if ( $@ ) {
+        $c->error( "Error in parsing: $@" );
     }
+    return $parsed_object;
 }
 
 sub parse_file {
     my ( $self, $c, $file ) = @_;
 
-    my $scriptref = read_file( $file, scalar_ref => 1 );
-
-    $scriptref = $self->_parse_ssi( $c, $scriptref );
-    my $parsed_scriptref = $self->_parse_asp( $c, $scriptref );
-    # _parse_asp returns undef if not an ASP script
-    if ( $parsed_scriptref ) {
-        return $self->_build_parsed_object( $parsed_scriptref, is_perl => 1, file => $file );
-    } else {
-        return $self->_build_parsed_object( $scriptref, is_raw => 1, file => $file );
+    my $scriptref = eval { read_file( $file, scalar_ref => 1 ); };
+    if ( $@ && $@ =~ /sysopen: No such file or directory/ ) {
+        # To get to this point would mean that some call to $Response->Include()
+        # is for a non-existent file
+        $c->detach( '/server_error' );
     }
+
+    my $parsed_object = $self->parse( $c, $scriptref );
+
+    $parsed_object->{file} = $file;
+
+    return $parsed_object;
 }
 
 # This parser processes and converts are SSI to call $Response->Include()

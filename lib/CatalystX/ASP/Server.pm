@@ -50,7 +50,11 @@ sub GetLastError {
 
 sub HTMLEncode {
     my ( $self, $string ) = @_;
-    encode_entities( ref( $string ) ? $$string : $string );
+    for ( ref $string ) {
+        if ( /SCALAR/ ) { return encode_entities( $$string ) }
+        elsif ( /ARRAY/ ) { return \map { encode_entities( $_ ) } @$string }
+        else { return encode_entities( $string ) }
+    }
 }
 
 sub MapInclude {
