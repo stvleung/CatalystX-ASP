@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 our @CompileChecksumKeys = qw(Global GlobalPackage IncludesDir XMLSubsMatch);
 our @Objects = qw(Application Session Response Server Request);
 

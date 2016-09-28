@@ -2,6 +2,7 @@ package CatalystX::ASP::Role;
 
 use Moose::Role;
 
+# Inject our View
 before 'setup_components' => sub {
     my $class = shift;
 
@@ -10,12 +11,16 @@ before 'setup_components' => sub {
             from_component => 'CatalystX::ASP::View',
         }
     );
+};
 
-    $class->inject_components(
-        'Controller::ASP' => {
-            from_component => 'CatalystX::ASP::Controller',
-        }
-    );
+# Register our DispatchType
+after 'setup_dispatcher' => sub {
+    my $c = shift;
+
+    # Add our dispatcher
+    push @{ $c->dispatcher->preload_dispatch_types }, '+CatalystX::ASP::Dispatcher';
+
+    return $c;
 };
 
 no Moose::Role;
