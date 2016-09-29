@@ -9,6 +9,29 @@ with 'CatalystX::ASP::Compiler';
 
 requires 'compile_include';
 
+=head1 NAME
+
+CatalystX::ASP::Parser - Role for CatalystX::ASP providing code parsing
+
+=head1 SYNOPSIS
+
+  use CatalystX::ASP;
+  with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
+
+  sub execute {
+    my ($self, $c, $scriptref) = @_;
+    my $parsed = $self->parse($c, $scriptref);
+    my $subid = $self->compile($c, $parsed->{data});
+    eval { &$subid };
+  }
+
+=head1 DESCRIPTION
+
+This class implements the ability to parse ASP code into readable format for
+C<CatalystX::ASP::Compiler>
+
+=cut
+
 sub _build_parsed_object {
     my ( $self, $scriptref, %opts ) = @_;
 
@@ -21,6 +44,16 @@ sub _build_parsed_object {
 
     return { %opts, data => $scriptref };
 }
+
+=head1 METHODS
+
+=over
+
+=item $self->parse($c, $scriptref)
+
+Take a C<$scriptref> and returns a hash including parsed data
+
+=cut
 
 sub parse {
     my ( $self, $c, $scriptref ) = @_;
@@ -41,6 +74,12 @@ sub parse {
     return $parsed_object;
 }
 
+=item $self->parse_file($c, $file)
+
+Take a C<$file> and returns a hash including parsed data
+
+=cut
+
 sub parse_file {
     my ( $self, $c, $file ) = @_;
 
@@ -48,7 +87,8 @@ sub parse_file {
     if ( $@ && $@ =~ /sysopen: No such file or directory/ ) {
         # To get to this point would mean that some call to $Response->Include()
         # is for a non-existent file
-        $c->detach( '/server_error' );
+        $c->error( "Could not read_file: $file in parse_file: $@" );
+        $c->detach;
     }
 
     my $parsed_object = $self->parse( $c, $scriptref );
@@ -279,3 +319,9 @@ sub _parse_for_subs {
 no Moose::Role;
 
 1;
+
+=back
+
+=head1 SEE ALSO
+
+L<CatalystX::ASP>, L<CatalystX::ASP::Compiler>,

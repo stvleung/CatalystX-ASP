@@ -9,6 +9,28 @@ with 'CatalystX::ASP::Parser';
 
 requires 'parse_file';
 
+=head1 NAME
+
+CatalystX::ASP::Compiler - Role for CatalystX::ASP providing code compilation
+
+=head1 SYNOPSIS
+
+  use CatalystX::ASP;
+  with 'CatalystX::ASP::Compiler';
+
+  sub execute {
+    my ($self, $c, $scriptref) = @_;
+    my $parsed = $self->parse($c, $scriptref);
+    my $subid = $self->compile($c, $parsed->{data});
+    eval { &$subid };
+  }
+
+=head1 DESCRIPTION
+
+This class implements the ability to compile parsed ASP code.
+
+=cut
+
 has '_compiled_includes' => (
     is => 'rw',
     isa => 'HashRef',
@@ -32,6 +54,17 @@ has '_registered_includes' => (
     },
 );
 
+=head1 METHODS
+
+=over
+
+=item $self->compile($c, $scriptref, $subid)
+
+Takes a C<$scriptref> that has been parsed and C<$subid> for the name of the
+subroutine to compile the code into. Returns
+
+=cut
+
 sub compile {
     my ( $self, $c, $scriptref, $subid ) = @_;
 
@@ -46,7 +79,7 @@ sub compile {
         $$scriptref,
         '}',
     );
-    $code =~ /^(.*)$/s; # why?
+    $code =~ /^(.*)$/s; # CHAMAS, why?
     $code = $1;
 
     no warnings;
@@ -62,6 +95,13 @@ sub compile {
     }
 }
 
+=item $self->compile_include($c, $include)
+
+Takes an C<$include> file. This will search for the file in C<IncludesDir> and
+parse it, and assign it a C<$subid> based on it's filename.
+
+=cut
+
 sub compile_include {
     my ( $self, $c, $include ) = @_;
 
@@ -69,6 +109,13 @@ sub compile_include {
 
     return $self->compile_file( $c, $file );
 }
+
+=item compile_file
+
+Takes an C<$file> assuming it exists. This will search for the file in
+C<IncludesDir> and parse it, and assign it a C<$subid> based on it's filename.
+
+=cut
 
 sub compile_file {
     my ( $self, $c, $file ) = @_;
@@ -105,6 +152,13 @@ sub compile_file {
     return \%compiled_object;
 }
 
+=item $self->register_include($c, $scriptref)
+
+Registers the file file of any calls to C<< $Response->Include() >> so as to
+prevent infinite recursion
+
+=cut
+
 sub register_include {
     my ( $self, $c, $scriptref ) = @_;
 
@@ -122,7 +176,7 @@ sub register_include {
         } /exsgi;
 }
 
-# This is how JCHAMAS gets a subroutined destroyed
+# This is how CHAMAS gets a subroutined destroyed
 sub _undefine_sub {
     my ( $self, $subid ) = @_;
     if ( my $code = \&{$subid} ) {
@@ -133,3 +187,9 @@ sub _undefine_sub {
 no Moose::Role;
 
 1;
+
+=back
+
+=head1 SEE ALSO
+
+L<CatalystX::ASP>, L<CatalystX::ASP::Parser>,

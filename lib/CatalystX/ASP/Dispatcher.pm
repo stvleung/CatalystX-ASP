@@ -8,6 +8,24 @@ extends 'Catalyst::DispatchType';
 use Catalyst::Utils;
 use Text::SimpleTable;
 
+=head1 NAME
+
+CatalystX::ASP::Dispatcher - Catalyst DispatchType to match .asp requests
+
+=head1 SYNOPSIS
+
+  package MyApp;
+
+  after 'setup_dispatcher' => sub {
+    push @{ $shift->dispatcher->preload_dispatch_types }, '+CatalystX::ASP::Dispatcher';
+  };
+
+=head1 DESCRIPTION
+
+This DispatchType will match any requests ending with .asp.
+
+=cut
+
 has '_actions' => (
     is => 'rw',
     isa => 'HashRef',
@@ -18,6 +36,16 @@ has '_actions' => (
         _add_action => 'set',
     },
 );
+
+=head1 METHODS
+
+=over
+
+=item $self->list($c)
+
+Debug output for ASP dispatch points
+
+=cut
 
 sub list {
     my ( $self, $c ) = @_;
@@ -31,6 +59,13 @@ sub list {
 
     $c->log->debug( "Loaded ASP actions:\n" . $asp->draw . "\n" );
 }
+
+=item $self->match($c, $path)
+
+Checks if request path ends with .asp, and if file exists. Then creates custom
+action to forward to ASP View.
+
+=cut
 
 sub match {
     my ( $self, $c, $path ) = @_;
@@ -59,11 +94,23 @@ sub match {
     return 0;
 }
 
+=item $self->register( $c, $action )
+
+Registers the generated action
+
+=cut
+
 sub register {
     my ( $self, $c, $action ) = @_;
 
     return $self->_add_action( $action->name => 1 ) if $action->attributes->{ASP};
 }
+
+=item $self->uri_for_action($action, $captures)
+
+Get a URI part for an action
+
+=cut
 
 sub uri_for_action {
     my ( $self, $c, $action, $captures ) = @_;
@@ -72,3 +119,9 @@ sub uri_for_action {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=back
+
+=head1 SEE ALSO
+
+L<CatalystX::ASP::Role>, L<CatalystX::ASP::View>

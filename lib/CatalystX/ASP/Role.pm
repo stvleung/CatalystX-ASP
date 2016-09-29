@@ -2,6 +2,37 @@ package CatalystX::ASP::Role;
 
 use Moose::Role;
 
+=head1 NAME
+
+CatalystX::ASP::Role - Catalyst Role to plug-in the ASP View
+
+=head1 SYNOPSIS
+
+  package MyApp;
+
+  use Moose;
+  use Catalyst;
+  extends 'Catalyst';
+
+  with 'CatalystX::ASP::Role';
+
+=head1 DESCRIPTION
+
+Compose this role in your main application class. This will inject the ASP View
+as View component in your app called 'ASP', accessible via
+C<< $c->view('ASP') >>. It will also add a C<DispatchType> which will direct all
+requests with C<.asp> extension to the View.
+
+=head1 METHODS
+
+=over
+
+=item before 'setup_components'
+
+Inject C<CatalystX::ASP::View> component as a View for your app
+
+=cut
+
 # Inject our View
 before 'setup_components' => sub {
     my $class = shift;
@@ -12,6 +43,12 @@ before 'setup_components' => sub {
         }
     );
 };
+
+=item after 'setup_dispatcher'
+
+Load C<CatalystX::ASP::Dispatcher> as a C<DispatchType> for your app
+
+=cut
 
 # Register our DispatchType
 after 'setup_dispatcher' => sub {
@@ -26,3 +63,9 @@ after 'setup_dispatcher' => sub {
 no Moose::Role;
 
 1;
+
+=back
+
+=head1 SEE ALSO
+
+L<CatalystX::ASP::View> L<CatalystX::ASP::Dispatcher>

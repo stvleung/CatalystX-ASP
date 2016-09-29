@@ -19,7 +19,7 @@ CatalystX::ASP::Session - $Session Object
   use CatalystX::ASP::Session;
 
   my $session = CatalystX::ASP::Session->new(asp => $asp);
-  tie %Session, 'CatalystX::ASP::Session', $session
+  tie %Session, 'CatalystX::ASP::Session', $session;
   $Session{foo} = $bar;
 
 =head1 DESCRIPTION

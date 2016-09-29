@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
@@ -506,7 +506,12 @@ Joshua Chamas C<< <asp-dev@chamas.com> >>
 
 L<Catalyst>, L<Apache::ASP>
 
-=head1 COPYRIGHT
+=head1 LICENSE AND COPYRIGHT
 
-This library is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+Copyright (C) 2016 Steven Leung
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See L<http://dev.perl.org/licenses/> for more information.
