@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 NAME
 
@@ -311,6 +311,8 @@ for ( qw(Response Server Request GlobalASA) ) {
     has "$_" => (
         is => 'ro',
         isa => $class,
+        clearer => "clear_$_",
+        weak_ref => 1,
         lazy => 1,
         default => sub { $class->new( asp => shift ) }
     );
@@ -323,6 +325,8 @@ require_module $application_class;
 has 'Application' => (
     is => 'ro',
     isa => $application_class,
+    clearer => "clear_Application",
+    weak_ref => 1,
     lazy => 1,
     default => sub {
         my ( $self ) = @_;
@@ -335,6 +339,8 @@ require_module $session_class;
 has 'Session' => (
     is => 'ro',
     isa => $session_class,
+    clearer => "clear_Session",
+    weak_ref => 1,
     lazy => 1,
     default => sub {
         my ( $self ) = @_;
@@ -432,8 +438,6 @@ Eval the given C<$code>. Requies the Catalyst C<$context> object to be passed in
 first. The C<$code> can be a ref to CODE or a SCALAR, ie. a string of code to
 execute. Alternatively, C<$code> can be the absolute name of a subroutine.
 
-=back
-
 =cut
 
 sub execute {
@@ -488,7 +492,23 @@ sub execute {
     return @rv;
 }
 
+=item $self->cleanup_objects()
+
+Cleans up objects that are transient. Get ready for the next request
+
+=cut
+
+sub cleanup_objects {
+    my ( $self ) = @_;
+
+    $self->clear_Request;
+    $self->clear_Response;
+    $self->clear_Session;
+}
+
 __PACKAGE__->meta->make_immutable;
+
+=back
 
 =head1 BUGS/CAVEATS
 

@@ -7,11 +7,6 @@ use HTTP::Date;
 
 extends 'Catalyst::View';
 
-has 'asp' => (
-    is => 'rw',
-    isa => 'CatalystX::ASP',
-);
-
 =head1 NAME
 
 CatalystX::ASP::View - Catalyst View for processing ASP scripts
@@ -48,7 +43,8 @@ sub process {
     my $path = join '/', @args;
     $self->render( $c, $path );
 
-    my $resp = $self->asp->Response;
+    my $asp = $c->asp;
+    my $resp = $asp->Response;
 
     my $charset = $resp->Charset;
     my $content_type = $resp->ContentType;
@@ -61,6 +57,8 @@ sub process {
     $c->response->header( Expires => time2str( time + $resp->Expires ) ) if $resp->Expires;
     $c->response->status( $resp->Status || 200 );
     $c->response->body( $resp->Body );
+
+    $asp->cleanup_objects;
 
     return 1;
 }
@@ -78,13 +76,14 @@ sub render {
     my ( $self, $c, $path ) = @_;
 
 
-    my $asp = $self->asp( CatalystX::ASP->new({ %{$c->config->{'CatalystX::ASP'}}, c => $c }) );
+    my $asp = $c->asp || $c->asp( CatalystX::ASP->new({ %{$c->config->{'CatalystX::ASP'}}, c => $c }) );
 
     eval {
         my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $path || $c->request->path ) );
 
         $asp->GlobalASA->Script_OnStart;
         $asp->execute( $c, $compiled->{code} );
+        $asp->GlobalASA->Script_OnFlush;
         $asp->GlobalASA->Script_OnEnd;
     };
     if ( $@ ) {

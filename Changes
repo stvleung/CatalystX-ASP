@@ -1,5 +1,11 @@
 Revision history for CatalystX-ASP
 
+0.08    Wed Oct 5 17:20:53 2016 -0700
+        - Add cleanup of objects
+        - Cleanup after requests as opposed to beginning of each
+        - Better caching of ASP object, keeping some attributes intact
+        - Always run Script_OnFlush, right before Script_OnEnd
+
 0.07    Thu Sep 29 16:23:42 2016 -0700
         - Plagiarize more documentation from Apache::ASP
         - The documentation is now complete
