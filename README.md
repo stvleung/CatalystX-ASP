@@ -36,7 +36,7 @@ perldoc command.
 # DESCRIPTION
 
 CatalystX::ASP is a plugin for Catalyst to support ASP (PerlScript). This is
-largely based off of Joshua Chama's [Apache::ASP](https://metacpan.org/pod/Apache::ASP), as the application I've been
+largely based off of Joshua Chamas's [Apache::ASP](https://metacpan.org/pod/Apache::ASP), as the application I've been
 working with was written for [Apache::ASP](https://metacpan.org/pod/Apache::ASP). Thus, this was designed to be
 almost a drop-in replacement. However, there were many features that I chose not
 to implement.
@@ -47,7 +47,7 @@ automatical processing of files with _.asp_ extension in the application
 _root_ directory.
 
 Just to be clear, the [Parser](https://metacpan.org/pod/CatalystX::ASP::Parser) is almost totally ripped
-off of Joshua Chama's parser in [Apache::ASP](https://metacpan.org/pod/Apache::ASP). Similarly with the
+off of Joshua Chamas's parser in [Apache::ASP](https://metacpan.org/pod/Apache::ASP). Similarly with the
 [Compiler](https://metacpan.org/pod/CatalystX::ASP::Compiler) and [GlobalASA](https://metacpan.org/pod/CatalystX::ASP::GlobalASA).
 However, the other components are a reimplementations.
 

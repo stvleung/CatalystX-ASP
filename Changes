@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+0.10    Thu Oct 6 16:48:28 2016 -0700
+        - Abandon session on destruction
+        - Correct misspelling of Mr. Chamas's name
+
 0.09    Thu Oct 6 14:52:59 2016 -0700
         - Handle request cookies smarter
         - Use weak references to ASP object for better cleanup

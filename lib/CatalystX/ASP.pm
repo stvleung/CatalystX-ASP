@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -35,7 +35,7 @@ version 0.09
 =head1 DESCRIPTION
 
 CatalystX::ASP is a plugin for Catalyst to support ASP (PerlScript). This is
-largely based off of Joshua Chama's L<Apache::ASP>, as the application I've been
+largely based off of Joshua Chamas's L<Apache::ASP>, as the application I've been
 working with was written for L<Apache::ASP>. Thus, this was designed to be
 almost a drop-in replacement. However, there were many features that I chose not
 to implement.
@@ -46,7 +46,7 @@ automatical processing of files with I<.asp> extension in the application
 I<root> directory.
 
 Just to be clear, the L<Parser|CatalystX::ASP::Parser> is almost totally ripped
-off of Joshua Chama's parser in L<Apache::ASP>. Similarly with the
+off of Joshua Chamas's parser in L<Apache::ASP>. Similarly with the
 L<Compiler|CatalystX::ASP::Compiler> and L<GlobalASA|CatalystX::ASP::GlobalASA>.
 However, the other components are a reimplementations.
 

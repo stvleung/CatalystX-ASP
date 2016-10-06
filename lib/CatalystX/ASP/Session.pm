@@ -160,19 +160,21 @@ cleared in the process, just as when any session times out.
 
 =cut
 
-sub Abandon {
+has '_abandon' => (
+    is => 'ro',
+    isa => 'Bool',
+    default => 0,
+    traits => [ qw(Bool) ],
+    handles => {
+        Abandon => 'set',
+    },
+);
+
+after 'Abandon' => sub {
     my ( $self ) = @_;
     my $asp = $self->asp;
-    my $c = $asp->c;
     $asp->GlobalASA->Session_OnEnd;
-    # By default, assume using Catalyst::Plugin::Session
-    if ( $c->can( 'delete_session' ) ) {
-        $c->delete_session( 'CatalystX::ASP::Sesssion::Abandon() called' )
-    # Else assume using Catalyst::Plugin::iParadigms::Session
-    } elsif ( $c->can( 'session_cache' ) ) {
-        $c->session_cache->delete( $c->sessionid );
-    }
-}
+};
 
 =item $Session->Lock()
 
@@ -276,6 +278,22 @@ sub CLEAR {
 sub SCALAR {
     my ( $self ) = @_;
     scalar %{$self->asp->c->session};
+}
+
+sub DEMOLISH {
+    my ( $self ) = @_;
+    my $c = $self->asp->c;
+
+    return unless $self->_abandon;
+
+    # By default, assume using Catalyst::Plugin::Session
+    if ( $c->can( 'delete_session' ) ) {
+        $c->delete_session( 'CatalystX::ASP::Sesssion::Abandon() called' )
+    # Else assume using Catalyst::Plugin::iParadigms::Session
+    } elsif ( $c->can( 'session_cache' ) ) {
+        $c->session_cache->delete( $c->sessionid );
+        $c->clear_session;
+    }
 }
 
 __PACKAGE__->meta->make_immutable;
