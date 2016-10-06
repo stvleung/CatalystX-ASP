@@ -122,7 +122,7 @@ sub BUILD {
     $code =~ /^(.*)$/s; # why?
     $code = $1;
 
-    no warnings 'redefine';
+    no warnings;
     eval $code;
     if ( $@ ) {
         $c->error( "Error on compilation of global.asa: $@" ); # don't throw error, so we can throw die later

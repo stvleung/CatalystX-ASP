@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.07
+version 0.09
 
 =head1 SYNOPSIS
 
@@ -312,7 +312,6 @@ for ( qw(Response Server Request GlobalASA) ) {
         is => 'ro',
         isa => $class,
         clearer => "clear_$_",
-        weak_ref => 1,
         lazy => 1,
         default => sub { $class->new( asp => shift ) }
     );
@@ -326,7 +325,6 @@ has 'Application' => (
     is => 'ro',
     isa => $application_class,
     clearer => "clear_Application",
-    weak_ref => 1,
     lazy => 1,
     default => sub {
         my ( $self ) = @_;
@@ -340,7 +338,6 @@ has 'Session' => (
     is => 'ro',
     isa => $session_class,
     clearer => "clear_Session",
-    weak_ref => 1,
     lazy => 1,
     default => sub {
         my ( $self ) = @_;

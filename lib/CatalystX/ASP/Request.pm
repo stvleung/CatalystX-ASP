@@ -7,6 +7,7 @@ has 'asp' => (
     is => 'ro',
     isa => 'CatalystX::ASP',
     required => 1,
+    weak_ref => 1,
 );
 
 =head1 NAME
@@ -66,7 +67,8 @@ has 'Cookies' => (
         my $c = $self->asp->c;
         my %cookies;
         for my $name ( keys %{$c->request->cookies} ) {
-            $cookies{$name} = $c->request->cookies->{$name}{value};
+            my $value = $c->request->cookies->{$name}{value};
+            $cookies{$name} = @$value > 1 ? $value : $value->[0];
         }
         return \%cookies;
     },

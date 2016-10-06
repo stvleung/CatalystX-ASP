@@ -9,6 +9,7 @@ has 'asp' => (
     is => 'ro',
     isa => 'CatalystX::ASP',
     required => 1,
+    weak_ref => 1,
 );
 
 has '_flushed_offset' => (
@@ -143,7 +144,8 @@ has 'Cookies' => (
         my $c = $self->asp->c;
         my %cookies;
         for my $name ( keys %{$c->response->cookies} ) {
-            $cookies{$name} = $c->response->cookies->{$name}{value};
+            my $value = $c->request->cookies->{$name}{value};
+            $cookies{$name} = @$value > 1 ? $value : $value->[0];
         }
         return \%cookies;
     },
@@ -588,6 +590,7 @@ sub Redirect {
     my ( $self, $url ) = @_;
     my $c = $self->asp->c;
 
+    $self->_flush_Cookies( $c );
     $c->response->redirect( $url );
     $c->detach;
 }
@@ -631,6 +634,13 @@ C<< $Response->Write($data) >>. All final output to the client must at some
 point go through this method.
 
 =cut
+
+sub _flush_Cookies {
+    my ( $self, $c ) = @_;
+    for my $name ( keys %{$self->Cookies} ) {
+        $c->response->cookies->{$name}{value} = $self->Cookies->{$name};
+    }
+}
 
 __PACKAGE__->meta->make_immutable;
 

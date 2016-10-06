@@ -8,6 +8,7 @@ has 'asp' => (
     is => 'ro',
     isa => 'CatalystX::ASP',
     required => 1,
+    weak_ref => 1,
 );
 
 =head1 NAME
