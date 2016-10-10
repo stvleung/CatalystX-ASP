@@ -23,24 +23,6 @@ as View component in your app called 'ASP', accessible via
 C<< $c->view('ASP') >>. It will also add a C<DispatchType> which will direct all
 requests with C<.asp> extension to the View.
 
-=head1 ATTRIBUTES
-
-=over
-
-=item asp
-
-The ASP object available for the $context object
-
-=cut
-
-has 'asp' => (
-    is => 'rw',
-    isa => 'CatalystX::ASP',
-    weak_ref => 1,
-);
-
-=back
-
 =head1 METHODS
 
 =over

@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+0.11    Mon Oct 10 15:20:14 2016 -0700
+        - Better caching of ASP object
+        - As well as cleanup of transient objects
+
 0.10    Thu Oct 6 16:48:28 2016 -0700
         - Abandon session on destruction
         - Correct misspelling of Mr. Chamas's name

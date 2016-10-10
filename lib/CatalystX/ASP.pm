@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
@@ -56,8 +56,8 @@ our @CompileChecksumKeys = qw(Global GlobalPackage IncludesDir XMLSubsMatch);
 our @Objects = qw(Application Session Response Server Request);
 
 has 'c' => (
-    is => 'ro',
-    required => 1,
+    is => 'rw',
+    clearer => 'clear_c'
 );
 
 =head1 CONFIGURATION
@@ -356,11 +356,11 @@ has 'Session' => (
 sub BUILD {
     my ( $self ) = @_;
 
-    # Trigger GlobalASA compilation now
-    $self->GlobalASA;
-
     # Trigger Application creation now
     $self->Application;
+
+    # Trigger GlobalASA compilation now
+    $self->GlobalASA->Application_OnStart;
 
     # Setup new Session
     $self->GlobalASA->Session_OnStart && $self->Session->_unset_is_new
@@ -459,6 +459,7 @@ sub execute {
     # Response class
     tie local *STDOUT, 'CatalystX::ASP::Response';
 
+    local $SIG{__WARN__} = \&Carp::cluck if $self->Debug;
     local $SIG{__DIE__} = \&Carp::confess if $self->Debug;
     my @rv;
     if ( my $reftype = ref $code ) {
@@ -501,6 +502,16 @@ sub cleanup_objects {
     $self->clear_Request;
     $self->clear_Response;
     $self->clear_Session;
+
+    no strict qw(refs);
+    for my $object ( @Objects ) {
+        for my $namespace ( 'main', $self->GlobalASA->package ) {
+            my $var = join( '::', $namespace, $object );
+            undef $$var;
+        }
+    }
+
+    $self->clear_c;
 }
 
 __PACKAGE__->meta->make_immutable;

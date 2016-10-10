@@ -7,6 +7,12 @@ use HTTP::Date;
 
 extends 'Catalyst::View';
 
+has 'asp' => (
+    is => 'rw',
+    isa => 'CatalystX::ASP',
+    weak_ref => 1,
+);
+
 =head1 NAME
 
 CatalystX::ASP::View - Catalyst View for processing ASP scripts
@@ -43,7 +49,7 @@ sub process {
     my $path = join '/', @args;
     $self->render( $c, $path );
 
-    my $asp = $c->asp;
+    my $asp = $self->asp;
     my $resp = $asp->Response;
 
     my $charset = $resp->Charset;
@@ -73,10 +79,20 @@ C<< $Response->Redirect >> or C<< $Response->End >> if called in ASP script.
 sub render {
     my ( $self, $c, $path ) = @_;
 
-
-    my $asp = $c->asp || $c->asp( CatalystX::ASP->new({ %{$c->config->{'CatalystX::ASP'}}, c => $c }) );
+    if ( $self->asp ) {
+        $self->asp->c( $c );
+    } else {
+        $self->asp(
+            CatalystX::ASP->new(
+                %{$c->config->{'CatalystX::ASP'}},
+                c => $c
+            )
+        );
+    }
 
     eval {
+        my $asp = $self->asp;
+
         my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $path || $c->request->path ) );
 
         $asp->GlobalASA->Script_OnStart;

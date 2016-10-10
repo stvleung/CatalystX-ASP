@@ -170,12 +170,6 @@ has '_abandon' => (
     },
 );
 
-after 'Abandon' => sub {
-    my ( $self ) = @_;
-    my $asp = $self->asp;
-    $asp->GlobalASA->Session_OnEnd;
-};
-
 =item $Session->Lock()
 
 Not implemented. This is a no-op. This was meant to be for performance
@@ -282,9 +276,14 @@ sub SCALAR {
 
 sub DEMOLISH {
     my ( $self ) = @_;
-    my $c = $self->asp->c;
+    my $asp = $self->asp;
+    my $c = $asp->c;
+
+    $c->clear_session if $c->can( 'clear_session' );
 
     return unless $self->_abandon;
+
+    $asp->GlobalASA->Session_OnEnd;
 
     # By default, assume using Catalyst::Plugin::Session
     if ( $c->can( 'delete_session' ) ) {
@@ -292,7 +291,6 @@ sub DEMOLISH {
     # Else assume using Catalyst::Plugin::iParadigms::Session
     } elsif ( $c->can( 'session_cache' ) ) {
         $c->session_cache->delete( $c->sessionid );
-        $c->clear_session;
     }
 }
 
