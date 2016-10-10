@@ -1,5 +1,8 @@
 Revision history for CatalystX-ASP
 
+0.12    Mon Oct 10 16:49:09 2016 -0700
+        - Optimize DispatchType
+
 0.11    Mon Oct 10 15:20:14 2016 -0700
         - Better caching of ASP object
         - As well as cleanup of transient objects

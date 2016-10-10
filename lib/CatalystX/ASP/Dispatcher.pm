@@ -26,14 +26,31 @@ This DispatchType will match any requests ending with .asp.
 
 =cut
 
-has '_actions' => (
+has 'default_action' => (
+    is => 'ro',
+    isa => 'Catalyst::Action',
+    default => sub {
+        return Catalyst::Action->new(
+            name => 'asp',
+            code => sub {
+                my ( $self, $c, @args ) = @_;
+                $c->forward( $c->view( 'ASP' ), \@args );
+            },
+            reverse => '.asp',
+            namespace => '',
+            class => 'CatalystX::ASP::Controller',
+            attributes => [ qw(ASP) ],
+        );
+    },
+);
+
+has '_registered_actions' => (
     is => 'rw',
     isa => 'HashRef',
     default => sub { {} },
     traits => [ qw(Hash) ],
     handles => {
-        _has_action => 'exists',
-        _add_action => 'set',
+        _register_action => 'set',
     },
 );
 
@@ -71,23 +88,10 @@ sub match {
     my ( $self, $c, $path ) = @_;
 
     if ( $path =~ m/\.asp$/ && -f $c->path_to( 'root', $path ) ) {
-        my $namespace = '';
-        my $action = Catalyst::Action->new(
-            name => 'asp',
-            code => sub {
-                my ( $self, $c, @args ) = @_;
-                $c->forward( $c->view( 'ASP' ), \@args );
-            },
-            reverse => '.asp',
-            namespace => $namespace,
-            class => 'CatalystX::ASP::Controller',
-            attributes => [ qw(ASP) ],
-        );
-
         $c->req->action( $path );
         $c->req->match( $path );
-        $c->action( $action );
-        $c->namespace( $namespace );
+        $c->action( $self->default_action );
+        $c->namespace( $self->default_action->namespace );
         return 1;
     }
 
@@ -103,7 +107,7 @@ Registers the generated action
 sub register {
     my ( $self, $c, $action ) = @_;
 
-    return $self->_add_action( $action->name => 1 ) if $action->attributes->{ASP};
+    return $self->_register_action( $action->name => 1 ) if $action->attributes->{ASP};
 }
 
 =item $self->uri_for_action($action, $captures)

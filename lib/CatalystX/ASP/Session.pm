@@ -279,8 +279,6 @@ sub DEMOLISH {
     my $asp = $self->asp;
     my $c = $asp->c;
 
-    $c->clear_session if $c->can( 'clear_session' );
-
     return unless $self->_abandon;
 
     $asp->GlobalASA->Session_OnEnd;
