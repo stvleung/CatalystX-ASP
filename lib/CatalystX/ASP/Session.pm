@@ -277,9 +277,16 @@ sub SCALAR {
 sub DEMOLISH {
     my ( $self ) = @_;
     my $asp = $self->asp;
-    my $c = $asp->c;
 
+    # For CatalystX::ASP::GetSession which can create an out of context
+    # Session object, which is okay
+    return unless $asp;
+
+    # Don't need to do further session cleanup unless _abandon flag is set
     return unless $self->_abandon;
+
+    my $c = $asp->c;
+    $c->clear_session;
 
     $asp->GlobalASA->Session_OnEnd;
 

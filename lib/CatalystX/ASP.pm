@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.12
+version 0.13
 
 =head1 SYNOPSIS
 
@@ -499,10 +499,6 @@ Cleans up objects that are transient. Get ready for the next request
 sub cleanup_objects {
     my ( $self ) = @_;
 
-    $self->clear_Request;
-    $self->clear_Response;
-    $self->clear_Session;
-
     no strict qw(refs);
     for my $object ( @Objects ) {
         for my $namespace ( 'main', $self->GlobalASA->package ) {
@@ -510,6 +506,10 @@ sub cleanup_objects {
             undef $$var;
         }
     }
+
+    $self->clear_Request;
+    $self->clear_Response;
+    $self->clear_Session;
 
     $self->clear_c;
 }

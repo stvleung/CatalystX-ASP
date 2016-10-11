@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+0.13    Tue Oct 11 14:46:20 2016 -0700
+        - Ensure cleanup of objects
+        - Better ordering of cleanup
+
 0.12    Mon Oct 10 16:49:09 2016 -0700
         - Optimize DispatchType
 

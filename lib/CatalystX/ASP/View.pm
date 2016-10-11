@@ -90,9 +90,8 @@ sub render {
         );
     }
 
+    my $asp = $self->asp;
     eval {
-        my $asp = $self->asp;
-
         my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $path || $c->request->path ) );
 
         $asp->GlobalASA->Script_OnStart;
@@ -100,14 +99,20 @@ sub render {
         $asp->GlobalASA->Script_OnFlush;
         $asp->GlobalASA->Script_OnEnd;
     };
-    if ( $@ ) {
+    my $error = $@;
+    if ( $error ) {
         # If error in other ASP code, return HTTP 500
-        if ( $@ !~ m/catalyst_detach|asp_end/ && ! $c->has_errors ) {
-            $c->error( "Encountered application error: $@" )
+        if ( $error !~ m/catalyst_detach|asp_end/ && ! $c->has_errors ) {
+            $c->error( "Encountered application error: $error" )
         }
 
         # Passthrough $c->detach
-        die $@ if $@ =~ m/catalyst_detach/;
+        if ( $error =~ m/catalyst_detach/ ) {
+            # Just ignore if there is error in Script_OnEnd
+            eval { $asp->GlobalASA->Script_OnEnd; };
+            $asp->cleanup_objects;
+            die $error;
+        }
     }
 }
 

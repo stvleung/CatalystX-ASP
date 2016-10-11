@@ -85,11 +85,9 @@ sub GetSession {
     my $session_class = ref $self->asp->Session;
     if ( $c->can( 'get_session_data' ) ) {
         my $session = $c->get_session_data( $sess_id );
-        $session->{asp} = $self->asp;
         return bless $session, $session_class
     } elsif ( $c->can( 'session_cache' ) ) {
-        my $session = $c->session_cache->get( $sess_id );
-        $session->{asp} = $self->asp;
+        my $session = $c->session_cache->get( $sess_id, existing_session_only => 1 );
         return bless $session, $session_class
     } else {
         return $self->asp->Session;
