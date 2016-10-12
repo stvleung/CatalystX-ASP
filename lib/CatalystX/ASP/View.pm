@@ -64,7 +64,7 @@ sub process {
 
     # Ensure destruction!
     undef $resp;
-    $asp->cleanup_objects;
+    $asp->cleanup;
 
     return 1;
 }
@@ -81,25 +81,20 @@ C<< $Response->Redirect >> or C<< $Response->End >> if called in ASP script.
 sub render {
     my ( $self, $c, $path ) = @_;
 
-    if ( $self->asp ) {
-        $self->asp->c( $c );
+    my $asp = $self->asp;
+    if ( $asp ) {
+        $asp->c( $c );
     } else {
-        $self->asp(
-            CatalystX::ASP->new(
-                %{$c->config->{'CatalystX::ASP'}},
-                c => $c
-            )
-        );
+        $asp = CatalystX::ASP->new( %{$c->config->{'CatalystX::ASP'}}, c => $c );
+        $self->asp( $asp );
     }
 
-    my $asp = $self->asp;
     eval {
         my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $path || $c->request->path ) );
 
         $asp->GlobalASA->Script_OnStart;
         $asp->execute( $c, $compiled->{code} );
         $asp->GlobalASA->Script_OnFlush;
-        $asp->GlobalASA->Script_OnEnd;
     };
     my $error = $@;
     if ( $error ) {
@@ -111,8 +106,7 @@ sub render {
         # Passthrough $c->detach
         if ( $error =~ m/catalyst_detach/ ) {
             # Just ignore if there is error in Script_OnEnd
-            eval { $asp->GlobalASA->Script_OnEnd; };
-            $asp->cleanup_objects;
+            $asp->cleanup;
             die $error;
         }
     }

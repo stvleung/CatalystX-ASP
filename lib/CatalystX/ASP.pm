@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 
@@ -305,7 +305,7 @@ common functions.
 
 =cut
 
-for ( qw(Server Request Response GlobalASA) ) {
+for ( qw(Server Request Response GlobalASA Application) ) {
     my $class = join( '::', __PACKAGE__, $_ );
     require_module $class;
     has "$_" => (
@@ -316,21 +316,6 @@ for ( qw(Server Request Response GlobalASA) ) {
         default => sub { $class->new( asp => shift ) }
     );
 }
-
-# Set up a global $Application hash for remainder of application life
-our $application;
-my $application_class = join( '::', __PACKAGE__, 'Application' );
-require_module $application_class;
-has 'Application' => (
-    is => 'ro',
-    isa => $application_class,
-    clearer => "clear_Application",
-    lazy => 1,
-    default => sub {
-        my ( $self ) = @_;
-        return $application ||= $application_class->new( asp => $self );
-    },
-);
 
 my $session_class = join( '::', __PACKAGE__, 'Session' );
 require_module $session_class;
@@ -490,27 +475,51 @@ sub execute {
     return @rv;
 }
 
-=item $self->cleanup_objects()
+=item $self->cleanup()
 
 Cleans up objects that are transient. Get ready for the next request
 
 =cut
 
-sub cleanup_objects {
+sub cleanup {
     my ( $self ) = @_;
 
+    # Since cleanup happens at the end of script processing, trigger
+    # Script_OnEnd
+    $self->GlobalASA->Script_OnEnd;
+
+    # Clean up abandoned $Session, which marks the end of the $Session and so
+    # trigger Session_OnEnd. Additionally, need to remove session from store.
+    if ( $self->Session->IsAbandoned ) {
+        $self->GlobalASA->Session_OnEnd;
+
+        my $c = $self->c;
+        # By default, assume using Catalyst::Plugin::Session
+        if ( $c->can( 'delete_session' ) ) {
+            $c->delete_session( 'CatalystX::ASP::Sesssion::Abandon() called' )
+            # Else assume using Catalyst::Plugin::iParadigms::Session
+        } elsif ( $c->can( 'session_cache' ) ) {
+            $c->clear_tii_session;
+            $c->clear_session;
+            $c->session_cache->delete( $c->sessionid );
+        }
+    }
+
+    untie ${\$self->Session};
+
+    # Remove references to global ASP objects
     no strict qw(refs);
-    for my $object ( @Objects ) {
+    for my $object ( reverse @Objects ) {
         for my $namespace ( 'main', $self->GlobalASA->package ) {
             my $var = join( '::', $namespace, $object );
             undef $$var;
         }
     }
 
+    # Clear transient global objects from ASP object
     $self->clear_Session;
     $self->clear_Response;
     $self->clear_Request;
-
     $self->clear_c;
 }
 

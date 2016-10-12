@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+0.15    Wed Oct 12 03:54:49 2016 -0700
+        - Refactored cleanup phase
+        - Transient global objects are now properly destroyed!
+
 0.14    Tue Oct 11 17:09:30 2016 -0700
         - Getting objects destroyed in proper order
         - It's been a struggle :-(

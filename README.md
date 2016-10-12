@@ -4,7 +4,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 # VERSION
 
-version 0.07
+version 0.15
 
 # INSTALLATION
 
@@ -206,6 +206,10 @@ These are methods available for the `CatalystX::ASP` object
     Eval the given `$code`. Requies the Catalyst `$context` object to be passed in
     first. The `$code` can be a ref to CODE or a SCALAR, ie. a string of code to
     execute. Alternatively, `$code` can be the absolute name of a subroutine.
+
+- $self->cleanup()
+
+    Cleans up objects that are transient. Get ready for the next request
 
 # BUGS/CAVEATS
 

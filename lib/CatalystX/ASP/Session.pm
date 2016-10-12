@@ -160,7 +160,7 @@ cleared in the process, just as when any session times out.
 
 =cut
 
-has '_abandon' => (
+has 'IsAbandoned' => (
     is => 'ro',
     isa => 'Bool',
     default => 0,
@@ -272,32 +272,6 @@ sub CLEAR {
 sub SCALAR {
     my ( $self ) = @_;
     scalar %{$self->asp->c->session};
-}
-
-sub DEMOLISH {
-    my ( $self ) = @_;
-    my $asp = $self->asp;
-
-    # For CatalystX::ASP::GetSession which can create an out of context
-    # Session object, which is okay
-    return unless $asp;
-
-    # Don't need to do further session cleanup unless _abandon flag is set
-    return unless $self->_abandon;
-
-    $asp->GlobalASA->Session_OnEnd;
-
-    my $c = $asp->c;
-
-    # By default, assume using Catalyst::Plugin::Session
-    if ( $c->can( 'delete_session' ) ) {
-        $c->delete_session( 'CatalystX::ASP::Sesssion::Abandon() called' )
-    # Else assume using Catalyst::Plugin::iParadigms::Session
-    } elsif ( $c->can( 'session_cache' ) ) {
-        $c->clear_tii_session;
-        $c->clear_session;
-        $c->session_cache->delete( $c->sessionid );
-    }
 }
 
 __PACKAGE__->meta->make_immutable;
