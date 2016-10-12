@@ -285,16 +285,17 @@ sub DEMOLISH {
     # Don't need to do further session cleanup unless _abandon flag is set
     return unless $self->_abandon;
 
-    my $c = $asp->c;
-    $c->clear_session;
-
     $asp->GlobalASA->Session_OnEnd;
+
+    my $c = $asp->c;
 
     # By default, assume using Catalyst::Plugin::Session
     if ( $c->can( 'delete_session' ) ) {
         $c->delete_session( 'CatalystX::ASP::Sesssion::Abandon() called' )
     # Else assume using Catalyst::Plugin::iParadigms::Session
     } elsif ( $c->can( 'session_cache' ) ) {
+        $c->clear_tii_session;
+        $c->clear_session;
         $c->session_cache->delete( $c->sessionid );
     }
 }

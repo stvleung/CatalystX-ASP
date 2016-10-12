@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.13
+version 0.14
 
 =head1 SYNOPSIS
 
@@ -53,7 +53,7 @@ However, the other components are a reimplementations.
 =cut
 
 our @CompileChecksumKeys = qw(Global GlobalPackage IncludesDir XMLSubsMatch);
-our @Objects = qw(Application Session Response Server Request);
+our @Objects = qw(Server Request Response Application Session);
 
 has 'c' => (
     is => 'rw',
@@ -305,7 +305,7 @@ common functions.
 
 =cut
 
-for ( qw(Response Server Request GlobalASA) ) {
+for ( qw(Server Request Response GlobalASA) ) {
     my $class = join( '::', __PACKAGE__, $_ );
     require_module $class;
     has "$_" => (
@@ -507,9 +507,9 @@ sub cleanup_objects {
         }
     }
 
-    $self->clear_Request;
-    $self->clear_Response;
     $self->clear_Session;
+    $self->clear_Response;
+    $self->clear_Request;
 
     $self->clear_c;
 }

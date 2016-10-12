@@ -62,6 +62,8 @@ sub process {
     $c->response->status( $resp->Status || 200 );
     $c->response->body( $resp->Body );
 
+    # Ensure destruction!
+    undef $resp;
     $asp->cleanup_objects;
 
     return 1;

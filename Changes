@@ -1,5 +1,10 @@
 Revision history for CatalystX-ASP
 
+0.14    Tue Oct 11 17:09:30 2016 -0700
+        - Getting objects destroyed in proper order
+        - It's been a struggle :-(
+        - Also C::P::iP::Session has two sessions so need second clear
+
 0.13    Tue Oct 11 14:46:20 2016 -0700
         - Ensure cleanup of objects
         - Better ordering of cleanup
