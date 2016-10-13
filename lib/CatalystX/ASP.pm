@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.15
+version 0.16
 
 =head1 SYNOPSIS
 
@@ -505,7 +505,9 @@ sub cleanup {
         }
     }
 
+    # Remove more references in order to get things destroyed
     untie ${\$self->Session};
+    undef &CatalystX::ASP::Response::TIEHANDLE;
 
     # Remove references to global ASP objects
     no strict qw(refs);

@@ -241,6 +241,8 @@ sub BUILD {
     # these attributes to populate the values for the hash key to be available
     $self->Cookies;
 
+    no warnings 'redefine';
+    *TIEHANDLE = sub { $self };
     $self->{out} = $self->{BinaryRef} = \( $self->{Body} );
 }
 
@@ -262,7 +264,6 @@ sub AddHeader {
     $self->asp->c->response->header( $name => $value );
 }
 
-sub TIEHANDLE {}
 sub PRINT { my $self = shift; $self->Write( $_ ) for @_ }
 sub PRINTF {
     my ( $self, $format, @list ) = @_;
