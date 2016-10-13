@@ -1,5 +1,12 @@
 Revision history for CatalystX-ASP
 
+0.17    Thu Oct 13 01:38:56 2016 -0700
+        - Keep ASP object in View
+        - Destroy global objects in right order
+
+0.16    Wed Oct 12 18:29:43 2016 -0700
+        - Empty definition of TIEHANDLE caused weird bug
+
 0.15    Wed Oct 12 03:54:49 2016 -0700
         - Refactored cleanup phase
         - Transient global objects are now properly destroyed!

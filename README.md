@@ -4,7 +4,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 # VERSION
 
-version 0.16
+version 0.17
 
 # INSTALLATION
 

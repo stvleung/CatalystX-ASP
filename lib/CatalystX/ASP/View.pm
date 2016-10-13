@@ -10,7 +10,6 @@ extends 'Catalyst::View';
 has 'asp' => (
     is => 'rw',
     isa => 'CatalystX::ASP',
-    weak_ref => 1,
 );
 
 =head1 NAME

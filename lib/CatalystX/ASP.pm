@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =head1 SYNOPSIS
 
@@ -523,6 +523,15 @@ sub cleanup {
     $self->clear_Response;
     $self->clear_Request;
     $self->clear_c;
+}
+
+# Clear remaining global objects in order
+sub DEMOLISH {
+    my ( $self ) = @_;
+
+    $self->clear_Application;
+    $self->clear_Server;
+    $self->clear_GlobalASA;
 }
 
 __PACKAGE__->meta->make_immutable;
