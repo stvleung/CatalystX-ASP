@@ -290,7 +290,6 @@ For more information on cookies in ASP, please read C<< $Response->Cookies() >>
 
 sub Cookies {
     my ( $self, $name, $key ) = @_;
-    my $cookies = $self->_get_Cookies;
 
     if ( $name ) {
         if ( $key ) {
@@ -299,7 +298,8 @@ sub Cookies {
             return $self->_get_Cookie( $name );
         }
     } else {
-        return $self->_get_Cookies;
+        my $cookies = $self->_get_Cookies;
+        return wantarray && ref $cookies eq 'ARRAY' ? %$cookies : $cookies;
     }
 }
 
@@ -335,9 +335,11 @@ sub FileUpload {
     my ( $self, $form_field, $key ) = @_;
 
     if ( $form_field ) {
-        return $self->_get_FileUpload( $form_field )->{$key};
+        my $upload = $self->_get_FileUpload( $form_field )->{$key};
+        return wantarray && ref $upload eq 'ARRAY' ? @$upload : $upload;
     } else {
-        return $self->_get_FileUploads;
+        my $uploads = $self->_get_FileUploads;
+        return wantarray && ref $uploads eq 'ARRAY' ? @$uploads : $uploads;
     }
 }
 
@@ -370,9 +372,11 @@ sub Form {
     my ( $self, $name ) = @_;
 
     if ( $name ) {
-        return $self->_get_FormField( $name );
+        my $value = $self->_get_FormField( $name );
+        return wantarray && ref $value eq 'ARRAY' ? @$value : $value;
     } else {
-        return $self->_get_Form;
+        my $form = $self->_get_Form;
+        return wantarray && ref $form eq 'ARRAY' ? @$form : $form;
     }
 }
 
@@ -396,9 +400,11 @@ sub Params {
     my ( $self, $name ) = @_;
 
     if ( $name ) {
-        return $self->_get_Param( $name );
+        my $param = $self->_get_Param( $name );
+        return wantarray && ref $param eq 'ARRAY' ? @$param : $param;
     } else {
-        return $self->_get_Params;
+        my $params = $self->_get_Params;
+        return wantarray && ref $params eq 'ARRAY' ? @$params : $params;
     }
 }
 
@@ -415,9 +421,11 @@ sub QueryString {
     my ( $self, $name ) = @_;
 
     if ( $name ) {
-        return $self->_get_Query( $name );
+        my $qparam = $self->_get_Query( $name );
+        return wantarray && ref $qparam eq 'ARRAY' ? @$qparam : $qparam;
     } else {
-        return $self->_get_QueryString;
+        my $qparams = $self->_get_QueryString;
+        return wantarray && ref $qparams eq 'ARRAY' ? @$qparams : $qparams;
     }
 }
 
@@ -437,9 +445,11 @@ sub ServerVariables {
     my ( $self, $name ) = @_;
 
     if ( $name ) {
-        return $self->_get_ServerVariable( $name );
+        my $var = $self->_get_ServerVariable( $name );
+        return wantarray && ref $var eq 'ARRAY' ? @$var : $var;
     } else {
-        return $self->_get_ServerVariables;
+        my $vars = $self->_get_ServerVariables;
+        return wantarray && ref $vars eq 'ARRAY' ? @$vars : $vars;
     }
 }
 

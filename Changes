@@ -1,5 +1,8 @@
 Revision history for CatalystX-ASP
 
+0.l8    Thu Oct 13 16:01:04 2016 -0700
+        - Allow for contextual values for Request attrs
+
 0.17    Thu Oct 13 01:38:56 2016 -0700
         - Keep ASP object in View
         - Destroy global objects in right order
