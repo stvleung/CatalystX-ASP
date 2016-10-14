@@ -4,6 +4,7 @@ use namespace::autoclean;
 use Moose;
 use CatalystX::ASP;
 use HTTP::Date;
+use Try::Tiny;
 
 extends 'Catalyst::View';
 
@@ -46,24 +47,33 @@ sub process {
     my ( $self, $c, @args ) = @_;
 
     my $path = join '/', @args;
-    $self->render( $c, $path );
 
-    my $asp = $self->asp;
-    my $resp = $asp->Response;
+    try {
+        $self->render( $c, $path );
 
-    my $charset = $resp->Charset;
-    my $content_type = $resp->ContentType;
-    $content_type .= "; charset=$charset" if $charset;
-    $c->response->content_type( $content_type );
-    $resp->_flush_Cookies( $c );
-    $c->response->header( Cache_Control => $resp->CacheControl );
-    $c->response->header( Expires => time2str( time + $resp->Expires ) ) if $resp->Expires;
-    $c->response->status( $resp->Status || 200 );
-    $c->response->body( $resp->Body );
+        my $resp = $self->asp->Response;
 
-    # Ensure destruction!
-    undef $resp;
-    $asp->cleanup;
+        my $charset = $resp->Charset;
+        my $content_type = $resp->ContentType;
+        $content_type .= "; charset=$charset" if $charset;
+        $c->response->content_type( $content_type );
+        $resp->_flush_Cookies( $c );
+        $c->response->header( Cache_Control => $resp->CacheControl );
+        $c->response->header( Expires => time2str( time + $resp->Expires ) ) if $resp->Expires;
+        $c->response->status( $resp->Status || 200 );
+        $c->response->body( $resp->Body );
+    } catch {
+        # Passthrough $c->detach
+        die $_ if $_ =~ m/catalyst_detach/;
+
+        # If error in other ASP code, return HTTP 500
+        if ( $_ !~ m/catalyst_detach|asp_end/ && ! $c->has_errors ) {
+            $c->error( "Encountered application error: $_" )
+        }
+    } finally {
+        # Ensure destruction!
+        $self->asp->cleanup;
+    };
 
     return 1;
 }
@@ -80,6 +90,10 @@ C<< $Response->Redirect >> or C<< $Response->End >> if called in ASP script.
 sub render {
     my ( $self, $c, $path ) = @_;
 
+    # Create localized ENV because ASP modifies and assumes ENV being populated
+    # with Request headers as in CGI
+    local %ENV;
+
     my $asp = $self->asp;
     if ( $asp ) {
         $asp->c( $c );
@@ -88,27 +102,11 @@ sub render {
         $self->asp( $asp );
     }
 
-    eval {
-        my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $path || $c->request->path ) );
+    my $compiled = $asp->compile_file( $c, $c->path_to( 'root', $path || $c->request->path ) );
 
-        $asp->GlobalASA->Script_OnStart;
-        $asp->execute( $c, $compiled->{code} );
-        $asp->GlobalASA->Script_OnFlush;
-    };
-    my $error = $@;
-    if ( $error ) {
-        # If error in other ASP code, return HTTP 500
-        if ( $error !~ m/catalyst_detach|asp_end/ && ! $c->has_errors ) {
-            $c->error( "Encountered application error: $error" )
-        }
-
-        # Passthrough $c->detach
-        if ( $error =~ m/catalyst_detach/ ) {
-            # Just ignore if there is error in Script_OnEnd
-            $asp->cleanup;
-            die $error;
-        }
-    }
+    $asp->GlobalASA->Script_OnStart;
+    $asp->execute( $c, $compiled->{code} );
+    $asp->GlobalASA->Script_OnFlush;
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -29,7 +29,6 @@ build_requires (
 requires (
    'Carp' => 0,
    'Catalyst' => 5.90000,
-   'Catalyst::Utils' => 0,
    'Digest::MD5' => 0,
    'File::Slurp' => 0,
    'HTML::Entities' => 0,
@@ -42,6 +41,7 @@ requires (
    'Text::SimpleTable' => 0,
    'Tie::Handle' => 0,
    'Tie::Hash' => 0,
+   'Try::Tiny' => 0,
    'URI::Escape' => 0,
    'URI' => 0,
 );

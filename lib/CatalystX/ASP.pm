@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.18
+version 0.19
 
 =head1 SYNOPSIS
 

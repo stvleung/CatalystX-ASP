@@ -173,7 +173,8 @@ has 'ServerVariables' => (
     reader => '_get_ServerVariables',
     lazy => 1,
     default => sub {
-        # Populate %ENV
+        # Populate %ENV freely because we assume some process upstream will
+        # localize ENV for the request.
         %ENV = ( %ENV, %{shift->asp->c->request->env} );
 
         # For backwards compatibility with Apache::ASP
