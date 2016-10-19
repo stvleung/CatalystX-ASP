@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+0.20    Tue Oct 18 18:43:13 2016 -0700
+        - Make %ENV cleaner (without refs)
+        - Actually, localizing needs to make copy still
+
 0.l9    Fri Oct 14 15:03:39 2016 -0700
         - Refactor error handling code, use Try::Tiny
         - Localize %ENV!! It's very important!

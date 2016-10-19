@@ -92,7 +92,7 @@ sub render {
 
     # Create localized ENV because ASP modifies and assumes ENV being populated
     # with Request headers as in CGI
-    local %ENV;
+    local %ENV = %ENV;
 
     my $asp = $self->asp;
     if ( $asp ) {

@@ -173,9 +173,13 @@ has 'ServerVariables' => (
     reader => '_get_ServerVariables',
     lazy => 1,
     default => sub {
+        my ( $self ) = @_;
         # Populate %ENV freely because we assume some process upstream will
         # localize ENV for the request.
-        %ENV = ( %ENV, %{shift->asp->c->request->env} );
+        my $env = $self->asp->c->request->env;
+        for ( keys %$env ) {
+            $ENV{$_} = $env->{$_} unless ref $env->{$_};
+        }
 
         # For backwards compatibility with Apache::ASP
         $ENV{SCRIPT_NAME} = $ENV{PATH_INFO};
