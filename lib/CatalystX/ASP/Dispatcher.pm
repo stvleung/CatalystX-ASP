@@ -1,6 +1,7 @@
 package CatalystX::ASP::Dispatcher;
 
 use Moose;
+use Moose::Util::TypeConstraints;
 use Catalyst::Action;
 
 extends 'Catalyst::DispatchType';
@@ -17,8 +18,14 @@ CatalystX::ASP::Dispatcher - Catalyst DispatchType to match .asp requests
   package MyApp;
 
   after 'setup_dispatcher' => sub {
-    push @{ $shift->dispatcher->preload_dispatch_types }, '+CatalystX::ASP::Dispatcher';
+    push @{$shift->dispatcher->preload_dispatch_types}, '+CatalystX::ASP::Dispatcher';
   };
+
+  __PACKAGE__->config('CatalystX::ASP' => {
+    Dispatcher => {
+      match_pattern => '\.asp$'
+    }
+  });
 
 =head1 DESCRIPTION
 
@@ -42,6 +49,23 @@ has 'default_action' => (
             attributes => [ qw(ASP) ],
         );
     },
+);
+
+has '_config' => (
+    is => 'rw',
+    isa => 'HashRef',
+    predicate => '_has_config',
+);
+
+coerce 'Regexp'
+    => from 'Str'
+        => via { qr/$_/i };
+
+has 'match_pattern' => (
+    is => 'rw',
+    isa => 'Regexp',
+    coerce => 1,
+    default => sub { qr/\.asp$/i },
 );
 
 has '_registered_actions' => (
@@ -72,7 +96,8 @@ sub list {
     my $asp = Text::SimpleTable->new(
         [ $col1_width, 'Path' ], [ $col2_width, 'Private' ]
     );
-    $asp->row( '/*.asp', '/asp' );
+    $self->_init_config( $c->config->{'CatalystX::ASP'}{Dispatcher} );
+    $asp->row( $self->match_pattern, '/asp' );
 
     $c->log->debug( "Loaded ASP actions:\n" . $asp->draw . "\n" );
 }
@@ -87,7 +112,9 @@ action to forward to ASP View.
 sub match {
     my ( $self, $c, $path ) = @_;
 
-    if ( $path =~ m/\.asp$/ && -f $c->path_to( 'root', $path ) ) {
+    $self->_init_config( $c->config->{'CatalystX::ASP'}{Dispatcher} );
+    my $match_pattern = $self->match_pattern;
+    if ( $path =~ m/$match_pattern/ && -f $c->path_to( 'root', $path ) ) {
         $c->req->action( $path );
         $c->req->match( $path );
         $c->action( $self->default_action );
@@ -120,6 +147,13 @@ sub uri_for_action {
     my ( $self, $c, $action, $captures ) = @_;
 
     return $action->private_path;
+}
+
+sub _init_config {
+    my ( $self, $config ) = @_;
+    return if $self->_has_config;
+    $self->_config( $config );
+    $self->$_( $config->{$_} ) for ( keys %$config );
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.20
+version 0.21
 
 =head1 SYNOPSIS
 
@@ -187,16 +187,6 @@ has 'MailFrom' => (
     default => '',
 );
 
-subtype 'XMLSubsRegexp' => as 'Regexp';
-
-coerce 'XMLSubsRegexp'
-    => from 'Str'
-        => via {
-            $_ =~ s/\(\?\:([^\)]*)\)/($1)/isg;
-            $_ =~ s/\(([^\)]*)\)/(?:$1)/isg;
-            qr/$_/;
-        };
-
 =item XMLSubsMatch
 
 Default is not defined. Set to some regexp pattern that will match all XML and
@@ -210,6 +200,16 @@ Please see XML/XSLT section for instructions on its use.
     ->XMLSubsMatch('my:[\w\-]+')
 
 =cut
+
+subtype 'XMLSubsRegexp' => as 'Regexp';
+
+coerce 'XMLSubsRegexp'
+    => from 'Str'
+        => via {
+            $_ =~ s/\(\?\:([^\)]*)\)/($1)/isg;
+            $_ =~ s/\(([^\)]*)\)/(?:$1)/isg;
+            qr/$_/;
+        };
 
 has 'XMLSubsMatch' => (
     is => 'ro',

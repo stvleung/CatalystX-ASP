@@ -1,5 +1,8 @@
 Revision history for CatalystX-ASP
 
+0.21    Thu Oct 20 10:47:55 2016 -0700
+        - Make Dispatcher match pattern configurable
+
 0.20    Tue Oct 18 18:43:13 2016 -0700
         - Make %ENV cleaner (without refs)
         - Actually, localizing needs to make copy still
