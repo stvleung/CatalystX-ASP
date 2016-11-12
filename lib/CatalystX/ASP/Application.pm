@@ -112,7 +112,11 @@ sub SessionCount {
     return;
 }
 
-sub DEMOLISH { shift->asp->GlobalASA->Application_OnEnd }
+sub DEMOLISH {
+    my ( $self ) = @_;
+    # It's okay if it fails...
+    eval { $self->asp->GlobalASA->Application_OnEnd };
+}
 
 __PACKAGE__->meta->make_immutable;
 

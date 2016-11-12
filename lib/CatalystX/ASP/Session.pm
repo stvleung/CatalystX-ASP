@@ -207,6 +207,8 @@ Not implemented.
 # TODO: will not implement; not part of API so just no-op
 sub Flush {}
 
+# The Session is tied to Catalyst's $c->session so as to skip the storage of the
+# $asp object
 sub TIEHASH {
     my ( $class, $self ) = @_;
     my $c = $self->asp->c;

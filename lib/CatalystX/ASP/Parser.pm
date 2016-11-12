@@ -102,8 +102,6 @@ sub parse_file {
 sub _parse_ssi {
     my ( $self, $c, $scriptref ) = @_;
 
-    $self->GlobalASA->execute_event( 'Script_OnParse' ) if $self->GlobalASA->exists;
-
     my $data = '';
     my $file_line_number;
     my $is_code_block;
@@ -136,7 +134,7 @@ sub _parse_ssi {
         # need to be part of the script identifier, so the global
         # caching does not return a script with different preferences.
         $args ||= '';
-        $data .= "<% \$Response->Include('$include', $args); %>";
+        $data .= "<% \$Response->Include('$include', '$args'); %>";
 
         # compile include now, so Loading() works for dynamic includes too
         $c->error( "Failed to compile $include" )

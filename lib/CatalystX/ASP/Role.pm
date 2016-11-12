@@ -42,6 +42,28 @@ before 'setup_components' => sub {
             from_component => 'CatalystX::ASP::View',
         }
     );
+
+};
+
+# Load ASP object and Global objects during setup
+after 'setup_components' => sub {
+    my $class = shift;
+
+    my $asp = CatalystX::ASP->new(
+        %{$class->config->{'CatalystX::ASP'}},
+        c => $class,
+        _setup_finished => 0,
+    );
+    $class->view( 'ASP' )->asp( $asp );
+};
+
+# Keep own copy of setup_finished
+before 'setup_finalize' => sub {
+    my ( $class ) = @_;
+
+    my $asp = $class->view( 'ASP' )->asp;
+    $asp->cleanup;
+    $asp->_setup_finished( 1 );
 };
 
 =item after 'setup_dispatcher'
@@ -56,8 +78,6 @@ after 'setup_dispatcher' => sub {
 
     # Add our dispatcher
     push @{ $c->dispatcher->preload_dispatch_types }, '+CatalystX::ASP::Dispatcher';
-
-    return $c;
 };
 
 no Moose::Role;

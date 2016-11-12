@@ -1,5 +1,15 @@
 Revision history for CatalystX-ASP
 
+0.22    Fri Nov 11 17:15:58 2016 -0800
+        - Add unit tests
+        - Tests:
+          - 01-parser.t
+          - 02-compiler.t
+          - 10-server.t
+          - 11-request.t
+          - 30-testapp.t
+        - Further optimize by loading ASP object during setup
+
 0.21    Thu Oct 20 10:47:55 2016 -0700
         - Make Dispatcher match pattern configurable
 

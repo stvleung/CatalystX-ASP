@@ -67,7 +67,7 @@ has 'Cookies' => (
         my $c = $self->asp->c;
         my %cookies;
         for my $name ( keys %{$c->request->cookies} ) {
-            my $value = $c->request->cookies->{$name}{value};
+            my $value = $c->request->cookies->{$name}{value} || [];
             $cookies{$name} = @$value > 1 ? $value : $value->[0];
         }
         return \%cookies;
@@ -209,7 +209,9 @@ has 'TotalBytes' => (
 
 sub BUILD {
     my ( $self ) = @_;
-    my $c = $self->asp->c;
+
+    # Don't initiate below attributes unless past setup phase
+    return unless $self->asp->_setup_finished;
 
     # Due to problem mentioned above in the builder methods, we are calling
     # these attributes to populate the values for the hash key to be available
@@ -253,7 +255,7 @@ sub BinaryRead {
         $body->read( $buffer, $length );
         return $buffer;
     } else {
-        return $body;
+        return substr( $body, 0, $length );
     }
 }
 

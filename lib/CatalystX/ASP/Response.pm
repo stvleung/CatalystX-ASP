@@ -144,8 +144,7 @@ has 'Cookies' => (
         my $c = $self->asp->c;
         my %cookies;
         for my $name ( keys %{$c->response->cookies} ) {
-            my $value = $c->request->cookies->{$name}{value};
-            $cookies{$name} = @$value > 1 ? $value : $value->[0];
+            $cookies{$name} = $c->response->cookies->{$name}{value};
         }
         return \%cookies;
     },
@@ -237,13 +236,16 @@ has 'Status' => (
 sub BUILD {
     my ( $self ) = @_;
 
-    # Due to problem mentioned above in the builder methods, we are calling
-    # these attributes to populate the values for the hash key to be available
-    $self->Cookies;
-
     no warnings 'redefine';
     *TIEHANDLE = sub { $self };
     $self->{out} = $self->{BinaryRef} = \( $self->{Body} );
+
+    # Don't initiate below attributes unless past setup phase
+    return unless $self->asp->_setup_finished;
+
+    # Due to problem mentioned above in the builder methods, we are calling
+    # these attributes to populate the values for the hash key to be available
+    $self->Cookies;
 }
 
 =back
@@ -544,6 +546,7 @@ sub Include {
         }
     } else {
         $compiled = $asp->compile_include( $c, $include );
+        return unless $compiled;
     }
 
     my $code = $compiled->{code};
@@ -616,8 +619,9 @@ sub TrapInclude {
     my $saved = $self->Body;
     $self->Clear;
 
-    local $self->{out} = local $self->{BinaryRef} = \( $self->{Body} );
+    no warnings 'redefine';
     local *CatalystX::ASP::Response::Flush = sub {};
+    local $self->{out} = local $self->{BinaryRef} = \( $self->{Body} );
 
     $self->Include( $include, @args );
     my $trapped = $self->Body;

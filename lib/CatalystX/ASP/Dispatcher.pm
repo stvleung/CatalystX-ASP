@@ -152,7 +152,7 @@ sub uri_for_action {
 sub _init_config {
     my ( $self, $config ) = @_;
     return if $self->_has_config;
-    $self->_config( $config );
+    $self->_config( $config || {} );
     $self->$_( $config->{$_} ) for ( keys %$config );
 }
 

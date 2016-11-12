@@ -14,7 +14,7 @@ tests_recursive('t');
 
 resources (
    license    => 'http://dev.perl.org/licenses/',
-   repository => 'git://github.com/stvleung/CatalystX-ASP.git',
+   repository => 'https://github.com/stvleung/CatalystX-ASP.git',
    bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=CatalystX-ASP',
 );
 
@@ -44,6 +44,13 @@ requires (
    'Try::Tiny' => 0,
    'URI::Escape' => 0,
    'URI' => 0,
+);
+
+test_requires (
+   'Catalyst::Plugin::Session' => 0,
+   'Catalyst::Plugin::Session::State::Cookie' => 0,
+   'Catalyst::Plugin::Session::Store::File' => 0,
+   'Text::Lorem' => 0,
 );
 
 install_as_cpan;

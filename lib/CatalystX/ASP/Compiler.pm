@@ -106,6 +106,10 @@ sub compile_include {
     my ( $self, $c, $include ) = @_;
 
     my $file = $self->search_includes_dir( $include );
+    unless ( $file ) {
+        $c->error( "Error in compilation: $include not found" );
+        return;
+    }
 
     return $self->compile_file( $c, $file );
 }

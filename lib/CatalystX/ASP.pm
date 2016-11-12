@@ -11,7 +11,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.21
+version 0.22
 
 =head1 SYNOPSIS
 
@@ -60,6 +60,12 @@ has 'c' => (
     clearer => 'clear_c'
 );
 
+has '_setup_finished' => (
+    is => 'rw',
+    isa => 'Bool',
+    default => 1,
+);
+
 =head1 CONFIGURATION
 
 You can configure CatalystX::ASP in Catalyst under the C<CatalystX::ASP> section
@@ -91,7 +97,7 @@ section on includes for more information.
 =cut
 
 has 'Global' => (
-    is => 'ro',
+    is => 'rw',
     isa => Path,
     coerce => 1,
     default => sub { path('/tmp') },
@@ -142,7 +148,7 @@ finally the C<IncludesDir> setting.
 =cut
 
 has 'IncludesDir' => (
-    is => 'ro',
+    is => 'rw',
     isa => Paths,
     coerce => 1,
     lazy => 1,
@@ -328,18 +334,45 @@ has 'Session' => (
         my ( $self ) = @_;
         my %session = ( asp => $self, _is_new => 0 );
 
-        # Create a Session object and pass into TIEHASH
+        # Create a Session object
         my $session_object = $session_class->new( %session );
-        tie %session, $session_class, $session_object;
 
-        # Copy over every key from Session object to tied hash
-        $session{$_} = $session_object->{$_} for ( keys %$session_object );
-        bless \%session, $session_class;
+        # If application has session support through pluging, pass into TIEHASH
+        # to sync values from $Session to $c->session
+        if ( $self->_setup_finished && $self->c->can( 'session' ) ) {
+            tie %session, $session_class, $session_object;
+
+            # Copy over every key from Session object to tied hash
+            $session{$_} = $session_object->{$_} for ( keys %$session_object );
+            return bless \%session, $session_class;
+        } else {
+            # Just return a $Session object, however it will not persist across
+            # requests.
+            return $session_object;
+        }
     },
 );
 
 sub BUILD {
     my ( $self ) = @_;
+    my $c = $self->c;
+
+    # Prepend $c->config->{home} if Global is relative and not found
+    if ( ! $self->Global->exists && $self->Global->is_relative ) {
+        $self->Global( path( $c->config->{home}, $self->Global ) );
+    }
+
+    # Go through each IncludeDir and check paths
+    my @includes_dir;
+    for ( @{$self->IncludesDir} ) {
+        if ( ! $_->exists && $_->is_relative ) {
+            push @includes_dir, path( $c->config->{home}, $_ );
+        }
+        else {
+            push @includes_dir, $_;
+        }
+    }
+    $self->IncludesDir( \@includes_dir );
 
     # Trigger Application creation now
     $self->Application;
@@ -386,6 +419,7 @@ sub search_includes_dir {
         return $self->_cache_include_file( $include => $file );
     }
 
+    # Returning undef means file not found. Let calling method handle error
     return;
 }
 
@@ -486,7 +520,7 @@ sub cleanup {
 
     # Since cleanup happens at the end of script processing, trigger
     # Script_OnEnd
-    $self->GlobalASA->Script_OnEnd;
+    $self->GlobalASA->Script_OnEnd if $self->_setup_finished;
 
     # Clean up abandoned $Session, which marks the end of the $Session and so
     # trigger Session_OnEnd. Additionally, need to remove session from store.

@@ -99,7 +99,7 @@ functionality before the IIS/ASP camp!
 
 =cut
 
-sub Execute { shift->asp->Response->Include( @_ ) }
+sub Execute { my $self = shift; $self->asp->Response->Include( @_ ) }
 
 =item $Server->File()
 
@@ -258,6 +258,8 @@ sub Mail {
     require Net::SMTP;
     my $smtp = Net::SMTP->new( $self->asp->MailHost, %smtp_args );
 
+    return 0 unless $smtp;
+
     my ( $from ) = split( /\s*,\s*/, ( $mail->{From} || '' ) ); # just the first one
     $smtp->mail( $from || $self->asp->MailFrom || return 0 );
 
@@ -332,7 +334,7 @@ is now just a wrapper for:
 
 =cut
 
-sub Transfer { shift->asp->Response->Include( @_ ) }
+sub Transfer { my $self = shift; $self->asp->Response->Include( @_ ) }
 
 =item $Server->URLEncode($string)
 
@@ -351,7 +353,7 @@ valid URL for use in anchor <a> tags and redirects, etc.
 
 sub URLEncode {
     my ( $self, $string ) = @_;
-    uri_escape( $string );
+    uri_escape_utf8( $string );
 }
 
 =item $Server->URL($url, \%params)
@@ -372,7 +374,8 @@ section too.
 
 sub URL {
     my ( $self, $url, $params ) = @_;
-    my $uri = URI->new( $url )->query_form( $params );
+    my $uri = URI->new( $url );
+    $uri->query_form( $params );
     $uri->as_string;
 }
 
