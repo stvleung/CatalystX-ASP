@@ -40,7 +40,7 @@ before 'setup_components' => sub {
     $class->inject_components(
         'View::ASP' => {
             from_component => 'CatalystX::ASP::View',
-        }
+            }
     );
 
 };
@@ -50,8 +50,8 @@ after 'setup_components' => sub {
     my $class = shift;
 
     my $asp = CatalystX::ASP->new(
-        %{$class->config->{'CatalystX::ASP'}},
-        c => $class,
+        %{ $class->config->{'CatalystX::ASP'} },
+        c               => $class,
         _setup_finished => 0,
     );
     $class->view( 'ASP' )->asp( $asp );

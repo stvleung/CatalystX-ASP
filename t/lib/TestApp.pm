@@ -8,18 +8,18 @@ use Catalyst qw/
     Session
     Session::State::Cookie
     Session::Store::File
-/;
+    /;
 
 __PACKAGE__->config(
-    name => 'TestApp',
+    name              => 'TestApp',
     'Plugin::Session' => {
         cookie_name => "session-id",
         storage     => "/tmp/testapp-sessions",
     },
     'CatalystX::ASP' => {
-        Global => 'root',
+        Global        => 'root',
         GlobalPackage => 'TestApp::ASP',
-        XMLSubsMatch => '(?:TestApp::ASP::\w+)::\w+',
+        XMLSubsMatch  => '(?:TestApp::ASP::\w+)::\w+',
     },
 );
 

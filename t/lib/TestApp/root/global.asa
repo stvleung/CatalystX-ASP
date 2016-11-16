@@ -1,3 +1,5 @@
+use strict;
+
 sub Application_OnStart {
     $Application->{start_time} = time;
 }

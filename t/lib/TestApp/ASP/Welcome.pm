@@ -1,5 +1,6 @@
 package TestApp::ASP::Welcome;
 
+use strict;
 use DateTime;
 use Text::Lorem;
 
@@ -20,7 +21,7 @@ sub body {
 
     # Storing large amounts of text into $Session and $Application to watch for
     # memory leaks
-    $main::Session->{random_text} = Text::Lorem->new->paragraphs( 1000 );
+    $main::Session->{random_text}     = Text::Lorem->new->paragraphs( 1000 );
     $main::Application->{random_text} = Text::Lorem->new->paragraphs( 1000 );
 
     # Store a circular reference into $Session

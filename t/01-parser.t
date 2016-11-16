@@ -13,7 +13,7 @@ use File::Temp qw(tempfile);
 use Mock::CatalystX::ASP;
 
 my ( $script, $parsed_object );
-my ( $fh, $filename );
+my ( $fh,     $filename );
 
 # Test simple parsing
 $script = q|<p><%= 'foo' %></p>|;
@@ -27,7 +27,7 @@ ok( $parsed_object->{is_perl}, 'Parser detected perl code' );
 
 # Test simple parsing on file
 ( $fh, $filename ) = tempfile;
-$fh->autoflush(1);
+$fh->autoflush( 1 );
 print $fh $script;
 $parsed_object = mock_asp->parse_file( mock_c, $filename );
 like(
@@ -77,20 +77,20 @@ like(
 );
 
 # Test parsing for SSI
-$script = q|<!--#include file="templates/some_template.tmpl"-->|;
+$script = q|<!--#include file="templates/some_template.inc"-->|;
 $parsed_object = mock_asp->parse( mock_c, \$script );
 like(
     ${ $parsed_object->{data} },
-    qr/\$Response->Include\(\s*['"]templates\/some_template.tmpl['"].*\)/,
+    qr/\$Response->Include\(\s*['"]templates\/some_template.inc['"].*\)/,
     'Parsed $script ref, convert SSI to ASP $Response->Include'
 );
 
 # Test parsing for SSI with arguments
-$script = q|<!--#include file="templates/some_template.tmpl" args="foobar"-->|;
+$script = q|<!--#include file="templates/some_template.inc" args="foobar"-->|;
 $parsed_object = mock_asp->parse( mock_c, \$script );
 like(
     ${ $parsed_object->{data} },
-    qr/\$Response->Include\(\s*['"]templates\/some_template.tmpl['"]\s*,\s*['"]foobar['"].*\)/,
+    qr/\$Response->Include\(\s*['"]templates\/some_template.inc['"]\s*,\s*['"]foobar['"].*\)/,
     'Parsed $script ref, convert SSI to ASP $Response->Include'
 );
 

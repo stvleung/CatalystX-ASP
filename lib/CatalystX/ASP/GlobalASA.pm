@@ -18,8 +18,8 @@ our @Routines = qw(
 );
 
 has 'asp' => (
-    is => 'ro',
-    isa => 'CatalystX::ASP',
+    is       => 'ro',
+    isa      => 'CatalystX::ASP',
     required => 1,
     weak_ref => 1,
 );
@@ -76,14 +76,14 @@ the C<Application_OnEnd> event may never occur.
 =cut
 
 has 'filename' => (
-    is => 'ro',
-    isa => Path,
+    is      => 'ro',
+    isa     => Path,
     default => sub { shift->asp->Global->child( 'global.asa' ) },
 );
 
 has 'package' => (
-    is => 'ro',
-    isa => 'Str',
+    is         => 'ro',
+    isa        => 'Str',
     lazy_build => 1,
 );
 
@@ -96,15 +96,15 @@ sub _build_package {
 
 sub BUILD {
     my ( $self ) = @_;
-    my $asp = $self->asp;
-    my $c = $asp->c;
+    my $asp      = $self->asp;
+    my $c        = $asp->c;
 
     return unless $self->exists;
 
-    my $package = $self->package;
-    my $filename = $self->filename;
-    my $global = $asp->Global;
-    my $code = read_file( $filename );
+    my $package      = $self->package;
+    my $filename     = $self->filename;
+    my $global       = $asp->Global;
+    my $code         = read_file( $filename );
     my $match_events = join '|', @Routines;
     $code =~ s/\<script[^>]*\>((.*)\s+sub\s+($match_events).*)\<\/script\>/$1/isg;
     $code = join( '',
@@ -112,21 +112,21 @@ sub BUILD {
         join( ' ;; ',
             "package $package;",
             'no strict;',
-            'use vars qw(' . join( ' ', map { "\$$_" } @CatalystX::ASP::Objects ) . ');',
+            'use vars qw(' . join( ' ', map {"\$$_"} @CatalystX::ASP::Objects ) . ');',
             "use lib qw($global);",
             $code,
             'sub exit { $main::Response->End(); }',
             "no lib qw($global);",
             '1;',
-        )
+            )
     );
-    $code =~ /^(.*)$/s; # why?
+    $code =~ /^(.*)$/s;    # Realized this is for untainting
     $code = $1;
 
     no warnings;
-    eval $code;
+    eval $code;            ## no critic (BuiltinFunctions::ProhibitStringyEval)
     if ( $@ ) {
-        $c->error( "Error on compilation of global.asa: $@" ); # don't throw error, so we can throw die later
+        $c->error( "Error on compilation of global.asa: $@" );    # don't throw error, so we can throw die later
     }
 }
 

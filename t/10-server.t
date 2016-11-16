@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 15;
+use Test::More tests => 16;
 use utf8;
 
 use FindBin;
@@ -18,9 +18,9 @@ BEGIN { use_ok 'CatalystX::ASP::Server'; }
 my $root = path( $FindBin::Bin, '../t/lib/TestApp/root' )->realpath;
 
 my $asp = CatalystX::ASP->new(
-    c => mock_c,
+    c             => mock_c,
     GlobalPackage => mock_asp->GlobalPackage,
-    Global => $root,
+    Global        => $root,
 );
 my $Server = $asp->Server;
 
@@ -32,7 +32,7 @@ is( $Server->CreateObject,
     undef,
     'Unimplemented method $Server->CreateObject'
 );
-is( [ $Server->Execute( 'templates/some_template.tmpl' ) ]->[0],
+is( [ $Server->Execute( 'templates/some_template.inc' ) ]->[0],
     "I've been included!",
     '$Server->Execute returned correct value'
 );
@@ -48,10 +48,11 @@ is( $Server->HTMLEncode( '<&>' ),
     '&lt;&amp;&gt;',
     '$Server->HTMLEncode got expected encoded HTML entities'
 );
-is( $Server->MapInclude( 'templates/some_template.tmpl' ),
-    path( $root, 'templates/some_template.tmpl' ),
+is( $Server->MapInclude( 'templates/some_template.inc' ),
+    path( $root, 'templates/some_template.inc' ),
     '$Server->MapInclude returned correct calculated value of include'
 );
+
 # $c->path_to hardcodes to the file path of /welcome.asp
 is( $Server->MapPath( 'http://domainname/welcome.asp' ),
     path( $root, 'welcome.asp' ),
@@ -60,16 +61,16 @@ is( $Server->MapPath( 'http://domainname/welcome.asp' ),
 require Net::SMTP;
 if ( Net::SMTP->new( $asp->MailHost ) ) {
     ok(
-        $Server->Mail({
-            To => sprintf( '%s@localhost', $ENV{USER} || 'root' ),
-            From => sprintf( '%s@localhost', $ENV{USER} || 'root' ),
-            Subject => 'foobar',
-            Body => 'foobar'
-        }),
+        $Server->Mail( {
+                To   => sprintf( '%s@localhost', $ENV{USER} || 'root' ),
+                From => sprintf( '%s@localhost', $ENV{USER} || 'root' ),
+                Subject => 'foobar',
+                Body    => 'foobar'
+            } ),
         sprintf( '$Server->Mail mailed to %s@localhost', $ENV{USER} || 'root' )
     );
 } else {
-    TODO: {
+TODO: {
         local $TODO = sprintf( '$Server->Mail untested, startup a mail server at %s', $asp->MailHost );
         fail( '$Server->Mail mailed to /dev/null' );
     }
@@ -78,7 +79,7 @@ is( $Server->RegisterCleanup,
     undef,
     'Unimplemented method $Server->RegisterCleanup'
 );
-is( [ $Server->Transfer( 'templates/some_template.tmpl' ) ]->[0],
+is( [ $Server->Transfer( 'templates/some_template.inc' ) ]->[0],
     "I've been included!",
     '$Server->Transfer returned correct value'
 );

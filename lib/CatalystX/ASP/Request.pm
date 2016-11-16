@@ -2,10 +2,11 @@ package CatalystX::ASP::Request;
 
 use namespace::autoclean;
 use Moose;
+use List::Util qw(all);
 
 has 'asp' => (
-    is => 'ro',
-    isa => 'CatalystX::ASP',
+    is       => 'ro',
+    isa      => 'CatalystX::ASP',
     required => 1,
     weak_ref => 1,
 );
@@ -58,68 +59,76 @@ C<< $Request->QueryString() >> & C<< $Request->Form() >> behave as collections.
 # to load the default value before the object is fully initialized. lazy => 1 is
 # a workaround to build the defaults later
 has 'Cookies' => (
-    is => 'ro',
-    isa => 'HashRef',
-    reader => '_get_Cookies',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'HashRef',
+    reader  => '_get_Cookies',
+    lazy    => 1,
     default => sub {
         my ( $self ) = @_;
         my $c = $self->asp->c;
         my %cookies;
-        for my $name ( keys %{$c->request->cookies} ) {
+        for my $name ( keys %{ $c->request->cookies } ) {
             my $value = $c->request->cookies->{$name}{value} || [];
-            $cookies{$name} = @$value > 1 ? $value : $value->[0];
+            if ( all { /.=./ } @$value ) {
+                for ( @$value ) {
+                    my ( $key, $val ) = split '=';
+                    $cookies{$name}{$key} = $val;
+                }
+            } else {
+                $cookies{$name} = $value->[0];
+            }
         }
         return \%cookies;
     },
-    traits => [ 'Hash' ],
+    traits  => ['Hash'],
     handles => {
         _get_Cookie => 'get',
     },
 );
 
 has 'FileUpload' => (
-    is => 'ro',
-    isa => 'HashRef',
-    reader => '_get_FileUploads',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'HashRef',
+    reader  => '_get_FileUploads',
+    lazy    => 1,
     default => sub {
         my ( $self ) = @_;
         my %uploads;
-        while ( my ( $field, $value ) = each %{$self->asp->c->request->uploads} ) {
+        while ( my ( $field, $value ) = each %{ $self->asp->c->request->uploads } ) {
+
             # Just assume the first upload field, because how Apache::ASP deals with
             # multiple uploads per-field is beyond me.
             my $upload = ref( $value ) eq 'ARRAY' ? $value->[0] : $value;
             $uploads{$field} = {
                 ContentType => $upload->type,
-                FileHandle => $upload->fh,
+                FileHandle  => $upload->fh,
                 BrowserFile => $upload->filename,
-                TempFile => $upload->tempname,
+                TempFile    => $upload->tempname,
             };
         }
         return \%uploads;
     },
-    traits => [ 'Hash' ],
+    traits  => ['Hash'],
     handles => {
         _get_FileUpload => 'get',
     },
 );
 
 has 'Form' => (
-    is => 'ro',
-    isa => 'HashRef',
-    reader => '_get_Form',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'HashRef',
+    reader  => '_get_Form',
+    lazy    => 1,
     default => sub {
         my ( $self ) = @_;
 
         # ASP includes uploads in its Form()
         return {
-            %{$self->asp->c->request->body_parameters},
-            %{$self->asp->c->request->uploads},
+            %{ $self->asp->c->request->body_parameters },
+            %{ $self->asp->c->request->uploads },
         };
     },
-    traits => [ 'Hash' ],
+    traits  => ['Hash'],
     handles => {
         _get_FormField => 'get',
     },
@@ -137,43 +146,44 @@ in version C<2.31>.
 =cut
 
 has 'Method' => (
-    is => 'ro',
-    isa => 'Str',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
     default => sub { shift->asp->c->request->method },
 );
 
 has 'Params' => (
-    is => 'ro',
-    isa => 'HashRef',
-    reader => '_get_Params',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'HashRef',
+    reader  => '_get_Params',
+    lazy    => 1,
     default => sub { shift->asp->c->request->parameters },
-    traits => [ 'Hash' ],
+    traits  => ['Hash'],
     handles => {
         _get_Param => 'get',
     },
 );
 
 has 'QueryString' => (
-    is => 'ro',
-    isa => 'HashRef',
-    reader => '_get_QueryString',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'HashRef',
+    reader  => '_get_QueryString',
+    lazy    => 1,
     default => sub { shift->asp->c->request->query_parameters },
-    traits => [ 'Hash' ],
+    traits  => ['Hash'],
     handles => {
         _get_Query => 'get',
     },
 );
 
 has 'ServerVariables' => (
-    is => 'ro',
-    isa => 'HashRef',
-    reader => '_get_ServerVariables',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'HashRef',
+    reader  => '_get_ServerVariables',
+    lazy    => 1,
     default => sub {
         my ( $self ) = @_;
+
         # Populate %ENV freely because we assume some process upstream will
         # localize ENV for the request.
         my $env = $self->asp->c->request->env;
@@ -186,7 +196,7 @@ has 'ServerVariables' => (
 
         return \%ENV;
     },
-    traits => [ 'Hash' ],
+    traits  => ['Hash'],
     handles => {
         _get_ServerVariable => 'get',
     },
@@ -201,9 +211,9 @@ C<< $Request->ServerVariables('CONTENT_LENGTH') >>
 =cut
 
 has 'TotalBytes' => (
-    is => 'ro',
-    isa => 'Int',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'Int',
+    lazy    => 1,
     default => sub { shift->asp->c->request->content_length || 0 },
 );
 
@@ -246,8 +256,8 @@ C<< $Request->Form() >> data will also be available as normal.
 
 sub BinaryRead {
     my ( $self, $length ) = @_;
-    my $c = $self->asp->c;
-    my $body = $c->request->body;
+    my $c     = $self->asp->c;
+    my $body  = $c->request->body;
     my @types = qw(application/x-www-form-urlencoded text/xml multipart/form-data);
     if ( grep { $c->request->content_type eq $_ } @types ) {
         my $buffer = '';

@@ -11,22 +11,24 @@ use Moose;
 use File::Temp qw(tempfile);
 use Mock::CatalystX::ASP;
 
+## no critic (BuiltinFunctions::ProhibitStringyEval)
+
 my ( $script, $parsed_object, $compiled_object, $package, $subid );
 my ( $fh, $filename );
 
 # Test simple compilation
-$script = q|<% 'foobar' %>|;
+$script        = q|<% 'foobar' %>|;
 $parsed_object = mock_asp->parse( mock_c, \$script );
-$package = mock_asp->GlobalASA->package;
-$subid = mock_asp->compile( mock_c, $parsed_object->{data}, "$package\::bar" );
-is( $subid, "$package\::bar", 'Successfully compiled an ASP script called foo' );
-is( eval "$subid", 'foobar', 'Able to run compiled ASP script and get expected return value' );
+$package       = mock_asp->GlobalASA->package;
+$subid         = mock_asp->compile( mock_c, $parsed_object->{data}, "$package\::bar" );
+is( $subid,        "$package\::bar", 'Successfully compiled an ASP script called foo' );
+is( eval "$subid", 'foobar',         'Able to run compiled ASP script and get expected return value' );
 mock_asp->_undefine_sub( $subid );
-is( eval $subid, undef, 'Able to undefine compiled ASP script' );
+is( eval "$subid", undef, 'Able to undefine compiled ASP script' );
 
 # Test compilation of ASP script
 ( $fh, $filename ) = tempfile;
-$fh->autoflush(1);
+$fh->autoflush( 1 );
 print $fh $script;
 $subid = join( '', mock_asp->GlobalASA->package, '::', mock_asp->file_id( $filename ), 'xINC' );
 $compiled_object = mock_asp->compile_file( mock_c, $filename );
@@ -37,11 +39,11 @@ is( mock_asp->_get_compiled_include( $subid )->{perl}, $compiled_object->{perl},
 $subid = $compiled_object->{code};
 is( eval "$subid", 'foobar', 'Able to run compiled ASP file and get expected return value' );
 mock_asp->_undefine_sub( $subid );
-is( eval $subid, undef, 'Able to undefine compiled ASP file' );
+is( eval "$subid", undef, 'Able to undefine compiled ASP file' );
 
 # Test compilation of ASP include
-$compiled_object = mock_asp->compile_include( mock_c, 'templates/some_template.tmpl' );
+$compiled_object = mock_asp->compile_include( mock_c, 'templates/some_template.inc' );
 $subid = $compiled_object->{code};
 is( eval "$subid", "I've been included!", 'Able to run compiled ASP include and get expected return value' );
 mock_asp->_undefine_sub( $subid );
-is( eval $subid, undef, 'Able to undefine compiled ASP include' );
+is( eval "$subid", undef, 'Able to undefine compiled ASP include' );

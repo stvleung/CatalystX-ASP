@@ -5,8 +5,8 @@ use Moose;
 use parent 'Tie::Hash';
 
 has 'asp' => (
-    is => 'ro',
-    isa => 'CatalystX::ASP',
+    is       => 'ro',
+    isa      => 'CatalystX::ASP',
     required => 1,
     weak_ref => 1,
 );
@@ -61,32 +61,32 @@ used for the following methods and properties:
 =cut
 
 has '_is_new' => (
-    is => 'rw',
-    isa => 'Bool',
+    is      => 'rw',
+    isa     => 'Bool',
     default => 0,
-    traits => [ qw(Bool) ],
+    traits  => [qw(Bool)],
     handles => {
-        '_set_is_new' => 'set',
+        '_set_is_new'   => 'set',
         '_unset_is_new' => 'unset'
     },
 );
 
 has '_session_key_index' => (
-    is => 'rw',
-    isa => 'Int',
+    is      => 'rw',
+    isa     => 'Int',
     default => 0,
-    traits => [ qw(Counter) ],
+    traits  => [qw(Counter)],
     handles => {
-        _inc_session_key_index => 'inc',
+        _inc_session_key_index   => 'inc',
         _reset_session_key_index => 'reset',
     },
 );
 
 has '_session_keys' => (
-    is => 'rw',
-    isa => 'ArrayRef',
+    is      => 'rw',
+    isa     => 'ArrayRef',
     default => sub { [] },
-    traits => [ qw(Array) ],
+    traits  => [qw(Array)],
     handles => {
         _session_keys_get => 'get',
     },
@@ -103,7 +103,7 @@ Not implemented.  May never be until someone needs it.
 =cut
 
 has 'CodePage' => (
-    is => 'ro',
+    is  => 'ro',
     isa => 'Item',
 );
 
@@ -114,7 +114,7 @@ Not implemented.  May never be until someone needs it.
 =cut
 
 has 'LCID' => (
-    is => 'ro',
+    is  => 'ro',
     isa => 'item',
 );
 
@@ -126,7 +126,7 @@ between the client and the server as a cookie.
 =cut
 
 has 'SessionID' => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -142,8 +142,8 @@ garbage collects it eventually.
 =cut
 
 has 'Timeout' => (
-    is => 'rw',
-    isa => 'Int',
+    is      => 'rw',
+    isa     => 'Int',
     default => 60,
 );
 
@@ -161,10 +161,10 @@ cleared in the process, just as when any session times out.
 =cut
 
 has 'IsAbandoned' => (
-    is => 'ro',
-    isa => 'Bool',
+    is      => 'ro',
+    isa     => 'Bool',
     default => 0,
-    traits => [ qw(Bool) ],
+    traits  => [qw(Bool)],
     handles => {
         Abandon => 'set',
     },
@@ -205,13 +205,14 @@ Not implemented.
 =cut
 
 # TODO: will not implement; not part of API so just no-op
-sub Flush {}
+sub Flush { }
 
 # The Session is tied to Catalyst's $c->session so as to skip the storage of the
 # $asp object
 sub TIEHASH {
     my ( $class, $self ) = @_;
     my $c = $self->asp->c;
+
     # By default, assume using Catalyst::Plugin::Session otherwise assume using
     # Catalyst::Plugin::iParadigms::Session
     my $session_is_valid = $c->can( 'session_is_valid' ) ? 'session_is_valid' : 'is_valid_session_id';
@@ -231,16 +232,16 @@ sub STORE {
 sub FETCH {
     my ( $self, $key ) = @_;
     for ( $key ) {
-        if (/asp/) { return $self->asp }
-        elsif (/_is_new/) { return $self->_is_new }
-        elsif (/_session_key/) { return }
-        else { return $self->asp->c->session->{$key} }
+        if    ( /asp/ )          { return $self->asp }
+        elsif ( /_is_new/ )      { return $self->_is_new }
+        elsif ( /_session_key/ ) {return}
+        else                     { return $self->asp->c->session->{$key} }
     }
 }
 
 sub FIRSTKEY {
     my ( $self ) = @_;
-    $self->_session_keys( [ keys %{$self->asp->c->session} ] );
+    $self->_session_keys( [ keys %{ $self->asp->c->session } ] );
     $self->_reset_session_key_index;
     $self->NEXTKEY;
 }
@@ -268,12 +269,12 @@ sub DELETE {
 
 sub CLEAR {
     my ( $self ) = @_;
-    $self->DELETE( $_ ) for ( keys %{$self->asp->c->session} );
+    $self->DELETE( $_ ) for ( keys %{ $self->asp->c->session } );
 }
 
 sub SCALAR {
     my ( $self ) = @_;
-    scalar %{$self->asp->c->session};
+    scalar %{ $self->asp->c->session };
 }
 
 __PACKAGE__->meta->make_immutable;

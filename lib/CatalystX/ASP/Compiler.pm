@@ -32,24 +32,24 @@ This class implements the ability to compile parsed ASP code.
 =cut
 
 has '_compiled_includes' => (
-    is => 'rw',
-    isa => 'HashRef',
+    is      => 'rw',
+    isa     => 'HashRef',
     default => sub { {} },
-    traits => [ qw(Hash) ],
+    traits  => [qw(Hash)],
     handles => {
         _get_compiled_include => 'get',
         _add_compiled_include => 'set',
-        _include_is_compiled => 'exists',
+        _include_is_compiled  => 'exists',
     },
 );
 
 has '_registered_includes' => (
-    is => 'rw',
-    isa => 'HashRef',
+    is      => 'rw',
+    isa     => 'HashRef',
     default => sub { {} },
-    traits => [ qw(Hash) ],
+    traits  => [qw(Hash)],
     handles => {
-        _include_is_registered => 'exists',
+        _include_is_registered  => 'exists',
         _add_registered_include => 'set',
     },
 );
@@ -72,21 +72,21 @@ sub compile {
     $self->_undefine_sub( $subid );
 
     my $code = join( ' ;; ',
-        "package $package;", # for no sub closure
+        "package $package;",    # for no sub closure
         "no strict;",
         "sub $subid { ",
-        "package $package;", # for sub closure
+        "package $package;",    # for sub closure
         $$scriptref,
         '}',
     );
-    $code =~ /^(.*)$/s; # CHAMAS, why?
+    $code =~ /^(.*)$/s;         # Realized this is for untainting
     $code = $1;
 
     no warnings;
     local $SIG{__DIE__} = \&Carp::confess if $self->Debug;
-    eval $code;
+    eval $code;                 ## no critic (BuiltinFunctions::ProhibitStringyEval)
     if ( $@ ) {
-        $c->error( "Error on compilation of $subid: $@" ); # don't throw error, so we can throw die later
+        $c->error( "Error on compilation of $subid: $@" );    # don't throw error, so we can throw die later
         $self->_undefine_sub( $subid );
         return;
     } else {
@@ -134,24 +134,24 @@ sub compile_file {
 
     my %compiled_object = (
         mtime => time(),
-        perl => $parsed_object->{data},
-        file => $file,
+        perl  => $parsed_object->{data},
+        file  => $file,
     );
 
     if ( $parsed_object->{is_perl}
         && ( my $code = $self->compile( $c, $parsed_object->{data}, $subid ) ) ) {
         $compiled_object{is_perl} = 1;
-        $compiled_object{code} = $code;
+        $compiled_object{code}    = $code;
     } elsif ( $parsed_object->{is_raw} ) {
         $compiled_object{is_raw} = 1;
-        $compiled_object{code} = $parsed_object->{data};
+        $compiled_object{code}   = $parsed_object->{data};
     } else {
         return;
     }
 
     # for a returned code ref, don't cache
     $self->_add_compiled_include( $subid => \%compiled_object )
-        if ( $subid && ! $self->_parse_for_subs( $parsed_object->{data} ) );
+        if ( $subid && !$self->_parse_for_subs( $parsed_object->{data} ) );
 
     return \%compiled_object;
 }

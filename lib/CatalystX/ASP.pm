@@ -4,6 +4,7 @@ use namespace::autoclean;
 use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::Path::Tiny qw(Path Paths);
+use Scalar::Util qw(blessed);
 use Path::Tiny;
 use Module::Runtime qw(require_module);
 use Digest::MD5 qw(md5_hex);
@@ -11,7 +12,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 =head1 NAME
 
@@ -19,7 +20,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 0.22
+version 0.23
 
 =head1 SYNOPSIS
 
@@ -53,16 +54,16 @@ However, the other components are a reimplementations.
 =cut
 
 our @CompileChecksumKeys = qw(Global GlobalPackage IncludesDir XMLSubsMatch);
-our @Objects = qw(Server Request Response Application Session);
+our @Objects             = qw(Server Request Response Application Session);
 
 has 'c' => (
-    is => 'rw',
+    is      => 'rw',
     clearer => 'clear_c'
 );
 
 has '_setup_finished' => (
-    is => 'rw',
-    isa => 'Bool',
+    is      => 'rw',
+    isa     => 'Bool',
     default => 1,
 );
 
@@ -97,10 +98,10 @@ section on includes for more information.
 =cut
 
 has 'Global' => (
-    is => 'rw',
-    isa => Path,
-    coerce => 1,
-    default => sub { path('/tmp') },
+    is      => 'rw',
+    isa     => Path,
+    coerce  => 1,
+    default => sub { path( '/tmp' ) },
 );
 
 =item GlobalPackage
@@ -117,7 +118,7 @@ and subs defined in a perl module that is included with commands like:
 =cut
 
 has 'GlobalPackage' => (
-    is => 'ro',
+    is  => 'ro',
     isa => 'Str',
 );
 
@@ -148,10 +149,10 @@ finally the C<IncludesDir> setting.
 =cut
 
 has 'IncludesDir' => (
-    is => 'rw',
-    isa => Paths,
-    coerce => 1,
-    lazy => 1,
+    is      => 'rw',
+    isa     => Paths,
+    coerce  => 1,
+    lazy    => 1,
     default => sub { [ shift->Global() ] },
 );
 
@@ -172,8 +173,8 @@ working.
 =cut
 
 has 'MailHost' => (
-    is => 'ro',
-    isa => 'Str',
+    is      => 'ro',
+    isa     => 'Str',
     default => 'localhost',
 );
 
@@ -188,8 +189,8 @@ mail header for the C<< $Server->Mail() >> API extension
 =cut
 
 has 'MailFrom' => (
-    is => 'ro',
-    isa => 'Str',
+    is      => 'ro',
+    isa     => 'Str',
     default => '',
 );
 
@@ -211,15 +212,15 @@ subtype 'XMLSubsRegexp' => as 'Regexp';
 
 coerce 'XMLSubsRegexp'
     => from 'Str'
-        => via {
-            $_ =~ s/\(\?\:([^\)]*)\)/($1)/isg;
-            $_ =~ s/\(([^\)]*)\)/(?:$1)/isg;
-            qr/$_/;
-        };
+    => via {
+    $_ =~ s/\(\?\:([^\)]*)\)/($1)/isg;
+    $_ =~ s/\(([^\)]*)\)/(?:$1)/isg;
+    qr/$_/;
+    };
 
 has 'XMLSubsMatch' => (
-    is => 'ro',
-    isa => 'XMLSubsRegexp',
+    is     => 'ro',
+    isa    => 'XMLSubsRegexp',
     coerce => 1,
 );
 
@@ -233,32 +234,32 @@ signal.
 =cut
 
 has 'Debug' => (
-    is => 'ro',
-    isa => 'Bool',
+    is      => 'ro',
+    isa     => 'Bool',
     default => 0,
 );
 
 has '_include_file_cache' => (
-    is => 'rw',
-    isa => 'HashRef',
-    traits => [ qw(Hash) ],
+    is      => 'rw',
+    isa     => 'HashRef',
+    traits  => [qw(Hash)],
     handles => {
         _include_file_from_cache => 'get',
-        _cache_include_file => 'set',
-        _include_file_is_cached => 'exists',
+        _cache_include_file      => 'set',
+        _include_file_is_cached  => 'exists',
     },
 );
 
 has '_compile_checksum' => (
-    is => 'ro',
-    isa => 'Str',
+    is      => 'ro',
+    isa     => 'Str',
     default => sub {
         my $self = shift;
         md5_hex(
             join( '&-+',
                 $VERSION,
                 map { $self->$_ || '' } @CompileChecksumKeys
-            )
+                )
         );
     },
 );
@@ -315,10 +316,10 @@ for ( qw(Server Request Response GlobalASA Application) ) {
     my $class = join( '::', __PACKAGE__, $_ );
     require_module $class;
     has "$_" => (
-        is => 'ro',
-        isa => $class,
+        is      => 'ro',
+        isa     => $class,
         clearer => "clear_$_",
-        lazy => 1,
+        lazy    => 1,
         default => sub { $class->new( asp => shift ) }
     );
 }
@@ -326,10 +327,10 @@ for ( qw(Server Request Response GlobalASA Application) ) {
 my $session_class = join( '::', __PACKAGE__, 'Session' );
 require_module $session_class;
 has 'Session' => (
-    is => 'ro',
-    isa => $session_class,
+    is      => 'ro',
+    isa     => $session_class,
     clearer => "clear_Session",
-    lazy => 1,
+    lazy    => 1,
     default => sub {
         my ( $self ) = @_;
         my %session = ( asp => $self, _is_new => 0 );
@@ -346,6 +347,7 @@ has 'Session' => (
             $session{$_} = $session_object->{$_} for ( keys %$session_object );
             return bless \%session, $session_class;
         } else {
+
             # Just return a $Session object, however it will not persist across
             # requests.
             return $session_object;
@@ -358,14 +360,14 @@ sub BUILD {
     my $c = $self->c;
 
     # Prepend $c->config->{home} if Global is relative and not found
-    if ( ! $self->Global->exists && $self->Global->is_relative ) {
+    if ( !$self->Global->exists && $self->Global->is_relative ) {
         $self->Global( path( $c->config->{home}, $self->Global ) );
     }
 
     # Go through each IncludeDir and check paths
     my @includes_dir;
-    for ( @{$self->IncludesDir} ) {
-        if ( ! $_->exists && $_->is_relative ) {
+    for ( @{ $self->IncludesDir } ) {
+        if ( !$_->exists && $_->is_relative ) {
             push @includes_dir, path( $c->config->{home}, $_ );
         }
         else {
@@ -405,9 +407,10 @@ sub search_includes_dir {
         if $self->_include_file_is_cached( $include );
 
     # Look through each IncludesDir
-    for my $dir ( @{$self->IncludesDir} ) {
+    for my $dir ( @{ $self->IncludesDir } ) {
         my $file = $dir->child( $include );
         if ( $file->exists ) {
+
             # Don't forget to cache the results
             return $self->_cache_include_file( $include => $file );
         }
@@ -439,6 +442,7 @@ sub file_id {
     $file =~ s/[\Wx]/_/sg;
     if ( length( $file ) >= 35 ) {
         push @id, substr( $file, length( $file ) - 35, 36 );
+
         # only do the hex of the original file to create a unique identifier for the long id
         push @id, 'x', md5_hex( $file . $checksum );
     } else {
@@ -457,12 +461,13 @@ execute. Alternatively, C<$code> can be the absolute name of a subroutine.
 =cut
 
 sub execute {
+
     # shifting @_ because passing through arguments (from $Response->Include)
     my $self = shift;
-    my $c = shift;
+    my $c    = shift;
     my $code = shift;
 
-    no strict qw(refs);
+    no strict qw(refs);    ## no critic
     no warnings;
 
     # This is to set up "global" ASP objects available directly in script or
@@ -478,20 +483,23 @@ sub execute {
     # Response class
     tie local *STDOUT, 'CatalystX::ASP::Response';
 
-    local $SIG{__WARN__} = \&Carp::cluck if $self->Debug;
-    local $SIG{__DIE__} = \&Carp::confess if $self->Debug;
+    local $SIG{__WARN__} = \&Carp::cluck   if $self->Debug;
+    local $SIG{__DIE__}  = \&Carp::confess if $self->Debug;
     my @rv;
     if ( my $reftype = ref $code ) {
         if ( $reftype eq 'CODE' ) {
+
             # The most common case
             @rv = eval { &$code; };
         } elsif ( $reftype eq 'SCALAR' ) {
+
             # If $code is just a ref to a string, just send it to client
             $self->Response->WriteRef( $code );
         } else {
             $c->error( "Could not execute because \$code is a ref, but not CODE or SCALAR!" );
         }
     } else {
+
         # Alternatively, execute a function in the ASP context given a string of
         # the subroutine name
         # If absolute package already, then no need to set to package namespace
@@ -499,11 +507,15 @@ sub execute {
         @rv = eval { &$subid; };
     }
     if ( $@ ) {
+
         # Record errors if not $c->detach and $Response->End
-        $c->error( "Error executing code: $@" ) unless $@ =~ m/catalyst_detach|asp_end/;
+        $c->error( "Error executing code: $@" ) unless (
+            blessed( $@ )
+            && ( $@->isa( 'Catalyst::Exception::Detach' ) || $@->isa( 'CatalystX::ASP::Exception::End' ) )
+        );
 
         # Passthrough $c->detach
-        die $@ if $@ =~ m/catalyst_detach/;
+        $@->rethrow if $@->isa( 'Catalyst::Exception::Detach' )
     }
 
     return @rv;
@@ -528,10 +540,12 @@ sub cleanup {
         $self->GlobalASA->Session_OnEnd;
 
         my $c = $self->c;
+
         # By default, assume using Catalyst::Plugin::Session
         if ( $c->can( 'delete_session' ) ) {
             $c->delete_session( 'CatalystX::ASP::Sesssion::Abandon() called' )
-            # Else assume using Catalyst::Plugin::iParadigms::Session
+
+                # Else assume using Catalyst::Plugin::iParadigms::Session
         } elsif ( $c->can( 'session_cache' ) ) {
             $c->clear_tii_session;
             $c->clear_session;
@@ -540,11 +554,11 @@ sub cleanup {
     }
 
     # Remove more references in order to get things destroyed
-    untie ${\$self->Session};
+    untie ${ \$self->Session };
     undef &CatalystX::ASP::Response::TIEHANDLE;
 
     # Remove references to global ASP objects
-    no strict qw(refs);
+    no strict qw(refs);    ## no critic
     for my $object ( reverse @Objects ) {
         for my $namespace ( 'main', $self->GlobalASA->package ) {
             my $var = join( '::', $namespace, $object );

@@ -2,19 +2,21 @@ package CatalystX::ASP::Response;
 
 use namespace::autoclean;
 use Moose;
+use CatalystX::ASP::Exception::End;
 use Tie::Handle;
+use List::Util qw(all);
 use Data::Dumper;
 
 has 'asp' => (
-    is => 'ro',
-    isa => 'CatalystX::ASP',
+    is       => 'ro',
+    isa      => 'CatalystX::ASP',
     required => 1,
     weak_ref => 1,
 );
 
 has '_flushed_offset' => (
-    is => 'rw',
-    isa => 'Int',
+    is      => 'rw',
+    isa     => 'Int',
     default => 0,
 );
 
@@ -58,17 +60,17 @@ place before content is flushed to the client web browser.
 =cut
 
 has 'BinaryRef' => (
-    is => 'rw',
-    isa => 'ScalarRef',
+    is      => 'rw',
+    isa     => 'ScalarRef',
     default => sub { \( shift->Body ) }
 );
 
 has 'Body' => (
-    is => 'rw',
-    isa => 'Str',
-    traits => [ 'String' ],
+    is      => 'rw',
+    isa     => 'Str',
+    traits  => ['String'],
     handles => {
-        Write => 'append',
+        Write      => 'append',
         BodyLength => 'length',
         BodySubstr => 'substr',
     },
@@ -76,8 +78,8 @@ has 'Body' => (
 
 # This attribute has no effect
 has 'Buffer' => (
-    is => 'rw',
-    isa => 'Bool',
+    is      => 'rw',
+    isa     => 'Bool',
     default => 1,
 );
 
@@ -89,8 +91,8 @@ content. This setting controls the value set in the HTTP header C<Cache-Control>
 =cut
 
 has 'CacheControl' => (
-    is => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'private',
 );
 
@@ -105,15 +107,15 @@ corresponding header would look like:
 =cut
 
 has 'Charset' => (
-    is => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => '',
 );
 
 # This attribute has no effect
 has 'Clean' => (
-    is => 'rw',
-    isa => 'Int',
+    is      => 'rw',
+    isa     => 'Int',
     default => 0,
 );
 
@@ -125,8 +127,8 @@ to the client. Sent as an HTTP header.
 =cut
 
 has 'ContentType' => (
-    is => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'text/html',
 );
 
@@ -134,21 +136,30 @@ has 'ContentType' => (
 # to load the default value before the object is fully initialized. lazy => 1 is
 # a workaround to build the defaults later
 has 'Cookies' => (
-    is => 'rw',
-    isa => 'HashRef',
-    reader => '_get_Cookies',
-    writer => '_set_Cookies',
-    lazy => 1,
+    is      => 'rw',
+    isa     => 'HashRef',
+    reader  => '_get_Cookies',
+    writer  => '_set_Cookies',
+    lazy    => 1,
     default => sub {
         my ( $self ) = @_;
         my $c = $self->asp->c;
         my %cookies;
-        for my $name ( keys %{$c->response->cookies} ) {
-            $cookies{$name} = $c->response->cookies->{$name}{value};
+        for my $name ( keys %{ $c->response->cookies } ) {
+            my $cookie = $c->response->cookies->{$name};
+            for my $attr ( keys %$cookie ) {
+                $cookies{$name}{ucfirst( $attr )} = $cookie->$attr;
+            }
+            if ( all { /.=./ } @{ $cookies{$name}{Value} } ) {
+                for ( @{ delete $cookies{$name}{Value} } ) {
+                    my ( $key, $val ) = split '=';
+                    $cookies{$name}{Value}{$key} = $val;
+                }
+            }
         }
         return \%cookies;
     },
-    traits => [ 'Hash' ],
+    traits  => ['Hash'],
     handles => {
         _get_Cookie => 'get',
         _set_Cookie => 'set',
@@ -157,10 +168,10 @@ has 'Cookies' => (
 
 # This attribute currently has no effect
 has 'Debug' => (
-    is => 'ro',
-    isa => 'Bool',
+    is      => 'ro',
+    isa     => 'Bool',
     default => 0,
-    reader => '_Debug',
+    reader  => '_Debug',
 );
 
 =item $Response->{Expires}
@@ -172,22 +183,22 @@ header generated is a standard HTTP date like: "Wed, 09 Feb 1994 22:23:32 GMT".
 =cut
 
 has 'Expires' => (
-    is => 'rw',
-    isa => 'Int',
+    is      => 'rw',
+    isa     => 'Int',
     default => 0,
 );
 
 # This attribute has no effect
 has 'ExpiresAbsolute' => (
-    is => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => '',
 );
 
 # This attribute has no effect
 has 'FormFill' => (
-    is => 'rw',
-    isa => 'Bool',
+    is      => 'rw',
+    isa     => 'Bool',
     default => 0,
 );
 
@@ -208,15 +219,15 @@ connection status without calling first a C<< $Response->Flush >>
 
 # This attribute has no effect
 has 'IsClientConnected' => (
-    is => 'rw',
-    isa => 'Bool',
+    is      => 'rw',
+    isa     => 'Bool',
     default => 1,
 );
 
 # This attribute has no effect
 has 'PICS' => (
-    is => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => '',
 );
 
@@ -228,8 +239,8 @@ Sets the status code returned by the server. Can be used to set messages like
 =cut
 
 has 'Status' => (
-    is => 'rw',
-    isa => 'Int',
+    is      => 'rw',
+    isa     => 'Int',
     default => 0,
 );
 
@@ -237,7 +248,7 @@ sub BUILD {
     my ( $self ) = @_;
 
     no warnings 'redefine';
-    *TIEHANDLE = sub { $self };
+    *TIEHANDLE = sub {$self};
     $self->{out} = $self->{BinaryRef} = \( $self->{Body} );
 
     # Don't initiate below attributes unless past setup phase
@@ -267,9 +278,10 @@ sub AddHeader {
 }
 
 sub PRINT { my $self = shift; $self->Write( $_ ) for @_ }
+
 sub PRINTF {
     my ( $self, $format, @list ) = @_;
-    $self->Write( sprintf( $format, @list) );
+    $self->Write( sprintf( $format, @list ) );
 }
 
 =item $Response->AppendToLog($message)
@@ -385,13 +397,24 @@ sub Cookies {
         return $self->_get_Cookies;
     } elsif ( @cookie == 1 ) {
         my $value = $cookie[0];
-        return $self->_set_Cookie( $name => $value );
+        $self->_set_Cookie( $name => { Value => $value } );
+        return $value;
     } else {
         my ( $key, $value ) = @cookie;
-        if ( my $existing = $self->_get_Cookie( $name ) ) {
-            return $existing->{$key} = $value;
+        if ( $key =~ m/secure|value|expires|domain|path|httponly/i ) {
+            if ( my $existing = $self->_get_Cookie( $name ) ) {
+                return $existing->{$key} = $value;
+            } else {
+                $self->_set_Cookie( $name => { $key => $value } );
+                return $value;
+            }
         } else {
-            return $self->_set_Cookie( $name => { $key => $value } );
+            if ( my $existing = $self->_get_Cookie( $name ) ) {
+                return $existing->{$key}{Value} = $value;
+            } else {
+                $self->_set_Cookie( $name => { Value => { $key => $value } } );
+                return $value;
+            }
         }
     }
 }
@@ -444,7 +467,7 @@ end of script, if not already called.
 
 sub End {
     shift->Clear;
-    die 'asp_end';
+    CatalystX::ASP::Exception::End->throw;
 }
 
 # TODO to implement or not to implement?
@@ -523,7 +546,7 @@ one should use something better suited like XSLT.
 sub Include {
     my ( $self, $include, @args ) = @_;
     my $asp = $self->asp;
-    my $c = $asp->c;
+    my $c   = $asp->c;
 
     my $compiled;
     if ( ref( $include ) && ref( $include ) eq 'SCALAR' ) {
@@ -531,18 +554,18 @@ sub Include {
         my $parsed_object = $asp->parse( $c, $scriptref );
         $compiled = {
             mtime => time(),
-            perl => $parsed_object->{data},
+            perl  => $parsed_object->{data},
         };
-        my $caller = [ caller(1) ]->[3] || 'main';
+        my $caller = [ caller( 1 ) ]->[3] || 'main';
         my $id = join( '', '__ASP_', $caller, 'x', $asp->_compile_checksum );
         my $subid = join( '', $asp->GlobalASA->package, '::', $id, 'xREF' );
         if ( $parsed_object->{is_perl}
             && ( my $code = $asp->compile( $c, $parsed_object->{data}, $subid ) ) ) {
             $compiled->{is_perl} = 1;
-            $compiled->{code} = $code;
+            $compiled->{code}    = $code;
         } else {
             $compiled->{is_raw} = 1;
-            $compiled->{code} = $parsed_object->{data};
+            $compiled->{code}   = $parsed_object->{data};
         }
     } else {
         $compiled = $asp->compile_include( $c, $include );
@@ -620,7 +643,7 @@ sub TrapInclude {
     $self->Clear;
 
     no warnings 'redefine';
-    local *CatalystX::ASP::Response::Flush = sub {};
+    local *CatalystX::ASP::Response::Flush = sub { };
     local $self->{out} = local $self->{BinaryRef} = \( $self->{Body} );
 
     $self->Include( $include, @args );
@@ -641,8 +664,21 @@ point go through this method.
 
 sub _flush_Cookies {
     my ( $self, $c ) = @_;
-    for my $name ( keys %{$self->Cookies} ) {
-        $c->response->cookies->{$name}{value} = $self->Cookies->{$name};
+    my $cookies = $self->_get_Cookies;
+    for my $name ( keys %$cookies ) {
+        my $cookie = $cookies->{$name};
+        for my $key ( keys %$cookie ) {
+
+            # This is really to support Apache::ASP's support hashes in cookies
+            if ( $key =~ m/value/i && ref( $cookie->{$key} ) eq 'HASH' ) {
+                $c->response->cookies->{$name}{value} =
+                    [ map { "$_=" . $cookie->{$key}{$_} } keys %{ $cookie->{$key} } ];
+            } else {
+
+                # Thankfully, don't need to make 'value' an arrayref for CGI::Simple::Cookie
+                $c->response->cookies->{$name}{lc( $key )} = $cookie->{$key};
+            }
+        }
     }
 }
 

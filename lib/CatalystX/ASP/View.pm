@@ -3,13 +3,14 @@ package CatalystX::ASP::View;
 use namespace::autoclean;
 use Moose;
 use CatalystX::ASP;
-use HTTP::Date;
+use Scalar::Util qw(blessed);
+use HTTP::Date qw(time2str);
 use Try::Tiny;
 
 extends 'Catalyst::View';
 
 has 'asp' => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'CatalystX::ASP',
 );
 
@@ -53,7 +54,7 @@ sub process {
 
         my $resp = $self->asp->Response;
 
-        my $charset = $resp->Charset;
+        my $charset      = $resp->Charset;
         my $content_type = $resp->ContentType;
         $content_type .= "; charset=$charset" if $charset;
         $c->response->content_type( $content_type );
@@ -63,14 +64,16 @@ sub process {
         $c->response->status( $resp->Status || 200 );
         $c->response->body( $resp->Body );
     } catch {
+
         # Passthrough $c->detach
-        die $_ if $_ =~ m/catalyst_detach/;
+        $_->rethrow if blessed( $_ ) && $_->isa( 'Catalyst::Exception::Detach' );
 
         # If error in other ASP code, return HTTP 500
-        if ( $_ !~ m/catalyst_detach|asp_end/ && ! $c->has_errors ) {
-            $c->error( "Encountered application error: $_" )
+        if ( blessed( $_ ) && !$_->isa( 'CatalystX::ASP::Exception::End' ) && !$c->has_errors ) {
+            $c->error( "Encountered application error: $_" );
         }
     } finally {
+
         # Ensure destruction!
         $self->asp->cleanup;
     };
@@ -98,7 +101,7 @@ sub render {
     if ( $asp ) {
         $asp->c( $c );
     } else {
-        $asp = CatalystX::ASP->new( %{$c->config->{'CatalystX::ASP'}}, c => $c );
+        $asp = CatalystX::ASP->new( %{ $c->config->{'CatalystX::ASP'} }, c => $c );
         $self->asp( $asp );
     }
 

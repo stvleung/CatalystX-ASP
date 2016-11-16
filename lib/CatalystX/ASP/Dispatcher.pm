@@ -34,8 +34,8 @@ This DispatchType will match any requests ending with .asp.
 =cut
 
 has 'default_action' => (
-    is => 'ro',
-    isa => 'Catalyst::Action',
+    is      => 'ro',
+    isa     => 'Catalyst::Action',
     default => sub {
         return Catalyst::Action->new(
             name => 'asp',
@@ -43,36 +43,36 @@ has 'default_action' => (
                 my ( $self, $c, @args ) = @_;
                 $c->forward( $c->view( 'ASP' ), \@args );
             },
-            reverse => '.asp',
-            namespace => '',
-            class => 'CatalystX::ASP::Controller',
-            attributes => [ qw(ASP) ],
+            reverse    => '.asp',
+            namespace  => '',
+            class      => 'CatalystX::ASP::Controller',
+            attributes => [qw(ASP)],
         );
     },
 );
 
 has '_config' => (
-    is => 'rw',
-    isa => 'HashRef',
+    is        => 'rw',
+    isa       => 'HashRef',
     predicate => '_has_config',
 );
 
 coerce 'Regexp'
     => from 'Str'
-        => via { qr/$_/i };
+    => via {qr/$_/i};
 
 has 'match_pattern' => (
-    is => 'rw',
-    isa => 'Regexp',
-    coerce => 1,
-    default => sub { qr/\.asp$/i },
+    is      => 'rw',
+    isa     => 'Regexp',
+    coerce  => 1,
+    default => sub {qr/\.asp$/i},
 );
 
 has '_registered_actions' => (
-    is => 'rw',
-    isa => 'HashRef',
+    is      => 'rw',
+    isa     => 'HashRef',
     default => sub { {} },
-    traits => [ qw(Hash) ],
+    traits  => [qw(Hash)],
     handles => {
         _register_action => 'set',
     },
@@ -91,9 +91,9 @@ Debug output for ASP dispatch points
 sub list {
     my ( $self, $c ) = @_;
     my $avail_width = Catalyst::Utils::term_width() - 9;
-    my $col1_width = ($avail_width * .50) < 35 ? 35 : int($avail_width * .50);
-    my $col2_width = $avail_width - $col1_width;
-    my $asp = Text::SimpleTable->new(
+    my $col1_width  = ( $avail_width * .50 ) < 35 ? 35 : int( $avail_width * .50 );
+    my $col2_width  = $avail_width - $col1_width;
+    my $asp         = Text::SimpleTable->new(
         [ $col1_width, 'Path' ], [ $col2_width, 'Private' ]
     );
     $self->_init_config( $c->config->{'CatalystX::ASP'}{Dispatcher} );

@@ -4,8 +4,8 @@ use namespace::autoclean;
 use Moose;
 
 has 'asp' => (
-    is => 'ro',
-    isa => 'CatalystX::ASP',
+    is       => 'ro',
+    isa      => 'CatalystX::ASP',
     required => 1,
     weak_ref => 1,
 );
@@ -81,7 +81,7 @@ best be served under a secure web server.
 
 sub GetSession {
     my ( $self, $sess_id ) = @_;
-    my $c = $self->asp->c;
+    my $c             = $self->asp->c;
     my $session_class = ref $self->asp->Session;
     if ( $c->can( 'get_session_data' ) ) {
         my $session = $c->get_session_data( $sess_id );
@@ -114,6 +114,7 @@ sub SessionCount {
 
 sub DEMOLISH {
     my ( $self ) = @_;
+
     # It's okay if it fails...
     eval { $self->asp->GlobalASA->Application_OnEnd };
 }

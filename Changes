@@ -1,5 +1,11 @@
 Revision history for CatalystX-ASP
 
+0.23    Wed Nov 16 10:54:18 2016 -0800
+        - perltidy'd and perlcritic'd
+        - Implement CatalystX::ASP::Exception::End
+        - Rethrow Catalyst::Exception::Detach when caught
+        - More unit tests
+
 0.22    Fri Nov 11 17:15:58 2016 -0800
         - Add unit tests
         - Tests:

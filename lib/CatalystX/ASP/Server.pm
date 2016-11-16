@@ -7,8 +7,8 @@ use URI;
 use URI::Escape;
 
 has 'asp' => (
-    is => 'ro',
-    isa => 'CatalystX::ASP',
+    is       => 'ro',
+    isa      => 'CatalystX::ASP',
     required => 1,
     weak_ref => 1,
 );
@@ -43,8 +43,8 @@ Apache Timeout configuration option, normally in httpd.conf.
 =cut
 
 has 'ScriptTimeout' => (
-    is => 'ro',
-    isa => 'Str',
+    is      => 'ro',
+    isa     => 'Str',
     default => 0,
 );
 
@@ -157,9 +157,9 @@ efficient, but maybe useful for some. It saves on copying the 100K buffer twice.
 sub HTMLEncode {
     my ( $self, $string ) = @_;
     for ( ref $string ) {
-        if ( /SCALAR/ ) { return encode_entities( $$string ) }
-        elsif ( /ARRAY/ ) { return \map { encode_entities( $_ ) } @$string }
-        else { return encode_entities( $string ) }
+        if    ( /SCALAR/ ) { return encode_entities( $$string ) }
+        elsif ( /ARRAY/ )  { return \map { encode_entities( $_ ) } @$string }
+        else               { return encode_entities( $string ) }
     }
 }
 
@@ -260,13 +260,14 @@ sub Mail {
 
     return 0 unless $smtp;
 
-    my ( $from ) = split( /\s*,\s*/, ( $mail->{From} || '' ) ); # just the first one
+    my ( $from ) = split( /\s*,\s*/, ( $mail->{From} || '' ) );    # just the first one
     $smtp->mail( $from || $self->asp->MailFrom || return 0 );
 
     my @to;
     for my $field ( qw(To BCC CC) ) {
         my $receivers = $mail->{$field};
         next unless $receivers;
+
         # assume ref of $receivers is an ARRAY if it is
         my @receivers = ref $receivers ? @$receivers : ( split( /\s*,\s*/, $receivers ) );
         push @to, @receivers;
@@ -277,15 +278,17 @@ sub Mail {
 
     # assumes MIME-Version 1.0 for Content-Type header, according to RFC 1521
     # http://www.ietf.org/rfc/rfc1521.txt
-    $mail->{'MIME-Version'} = '1.0' if $mail->{'Content-Type'} && ! $mail->{'MIME-Version'};
+    $mail->{'MIME-Version'} = '1.0' if $mail->{'Content-Type'} && !$mail->{'MIME-Version'};
 
     my ( @data, %visited );
+
     # Though the list below are actually keys in $mail, this is to get them to
     # appear first, thought I'm not sure why it's needed
     for my $field ( 'Subject', 'From', 'Reply-To', 'Organization', 'To', keys %$mail ) {
         my $value = $mail->{$field};
         next unless $value;
-        next if $visited{lc($field)}++;
+        next if $visited{ lc( $field ) }++;
+
         # assume ref of $value is an ARRAY if it is
         $value = join( ",", @$value ) if ref $value;
         $value =~ s/^[\n]*(.*?)[\n]*$/$1/;

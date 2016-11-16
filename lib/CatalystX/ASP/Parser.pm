@@ -37,7 +37,7 @@ sub _build_parsed_object {
 
     $$scriptref = join( ';;',
         'no strict;',
-        'use vars qw(' . join( ' ', map { "\$$_" } @CatalystX::ASP::Objects ) . ');',
+        'use vars qw(' . join( ' ', map {"\$$_"} @CatalystX::ASP::Objects ) . ');',
         $opts{file} ? "\n#line 1 $opts{file}\n" : '',
         $$scriptref,
     ) unless $opts{is_raw};
@@ -85,6 +85,7 @@ sub parse_file {
 
     my $scriptref = eval { read_file( $file, scalar_ref => 1 ); };
     if ( $@ && $@ =~ /sysopen: No such file or directory/ ) {
+
         # To get to this point would mean that some call to $Response->Include()
         # is for a non-existent file
         $c->error( "Could not read_file: $file in parse_file: $@" );
@@ -105,8 +106,8 @@ sub _parse_ssi {
     my $data = '';
     my $file_line_number;
     my $is_code_block;
-    while ( $$scriptref =~ s/^(.*?)\<!--\#include\s+file\s*=\s*\"?([^\s\"]*?)\"?(\s+args\s*=\s*\"?.*?)?\"?\s*--\>//so) {
-        $data .= $1; # append the head
+    while ( $$scriptref =~ s/^(.*?)\<!--\#include\s+file\s*=\s*\"?([^\s\"]*?)\"?(\s+args\s*=\s*\"?.*?)?\"?\s*--\>//so ) {
+        $data .= $1;    # append the head
         my $include = $2;
         my $args;
         if ( $3 ) {
@@ -123,7 +124,7 @@ sub _parse_ssi {
         $head_data =~ s/\<\%.*?\%\>//sg;
         $is_code_block += $head_data =~ s/\<\%//sg;
         $is_code_block -= $head_data =~ s/\%\>//sg;
-        $is_code_block = $is_code_block > 0; # stray percents like height=100%> kinds of tags
+        $is_code_block = $is_code_block > 0;    # stray percents like height=100%> kinds of tags
 
         # global directory, as well as includes dirs
         $c->error( "Could not find $include in IncludesDir" )
@@ -139,8 +140,8 @@ sub _parse_ssi {
         # compile include now, so Loading() works for dynamic includes too
         $c->error( "Failed to compile $include" )
             unless $self->compile_include( $c, $include );
-	}
-	$data .= $$scriptref; # append what's left
+    }
+    $data .= $$scriptref;    # append what's left
 
     return \$data;
 }
@@ -156,7 +157,7 @@ sub _parse_asp {
     # static file as is instead of executing it as a per subroutine.
     return unless $$scriptref =~ /\<\%.*?\%\>/s;
 
-    $scriptref = \join( '', $$scriptref, '<%;;;%>' ); # always end with some perl code for parsing.
+    $scriptref = \join( '', $$scriptref, '<%;;;%>' );    # always end with some perl code for parsing.
 
     my ( $script, @out, $perl_block, $last_perl_block );
     while ( $$scriptref =~ s/^(.*?)\<\%(.*?)\%\>//so ) {
@@ -167,6 +168,7 @@ sub _parse_asp {
         # influencing the generated html formatting, in particular
         # dealing with perl blocks and new lines
         if ( $text ) {
+
             # don't touch the white space, to preserve line numbers
             $text =~ s/\\/\\\\/gso;
             $text =~ s/\'/\\\'/gso;
@@ -177,12 +179,14 @@ sub _parse_asp {
         }
 
         if ( $perl ) {
-            unless( $is_perl_block ) {
+            unless ( $is_perl_block ) {
+
                 # we have a scalar assignment here
                 push( @out, "($1)" );
             } else {
                 $last_perl_block = 1;
-                if( @out ) {
+                if ( @out ) {
+
                     # we pass by reference here with the idea that we are not
                     # copying the HTML twice this way.  This might be large
                     # saving on a typical site with rich HTML headers & footers
