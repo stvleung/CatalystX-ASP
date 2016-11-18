@@ -106,6 +106,9 @@ sub _parse_ssi {
     my $data = '';
     my $file_line_number;
     my $is_code_block;
+
+    return \$data unless $$scriptref;
+
     while ( $$scriptref =~ s/^(.*?)\<!--\#include\s+file\s*=\s*\"?([^\s\"]*?)\"?(\s+args\s*=\s*\"?.*?)?\"?\s*--\>//so ) {
         $data .= $1;    # append the head
         my $include = $2;

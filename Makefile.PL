@@ -52,6 +52,7 @@ test_requires(
     'Catalyst::Plugin::Session'                => 0,
     'Catalyst::Plugin::Session::State::Cookie' => 0,
     'Catalyst::Plugin::Session::Store::File'   => 0,
+    'DateTime'                                 => 0,
     'HTTP::Headers'                            => 0,
     'Test::Exception'                          => 0,
     'Text::Lorem'                              => 0,

@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+1.03    Thu Nov 17 23:37:33 2016 -0800
+        - Fix 01-parser.t on catching catalyst_detach
+        - https://rt.cpan.org/Public/Bug/Display.html?id=118828
+
 1.02    Thu Nov 17 23:14:05 2016 -0800
         - More documentation tweaks
 

@@ -38,7 +38,10 @@ like(
 ok( $parsed_object->{is_perl}, 'Parser detected perl code' );
 is( $parsed_object->{file}, $filename, 'Parser saved name of file' );
 
-throws_ok { $parsed_object = mock_asp->parse_file( mock_c, '' ) } qr/catalyst_detach/, 'Detached on parsing failure';
+throws_ok( sub { $parsed_object = mock_asp->parse_file( mock_c, '' ) },
+    'Catalyst::Exception::Detach',
+    'Detached on parsing failure'
+);
 
 # Test parsing XMLSubs with content in block
 $script = q|<parser:test arg1='foo' arg2='bar'>inner html</parser:test>|;
