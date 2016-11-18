@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+1.01    Thu Nov 17 22:53:46 2016 -0800
+        - Fix some documentation issues
+          - Now that I see it on metacpan :-)
+
 1.00    Thu Nov 17 17:57:23 2016 -0800
         - First major release 1.00!
 

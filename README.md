@@ -4,7 +4,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 # VERSION
 
-version 1.00
+version 1.01
 
 # INSTALLATION
 
@@ -49,7 +49,7 @@ _root_ directory.
 Just to be clear, the [Parser](https://metacpan.org/pod/CatalystX::ASP::Parser) is almost totally ripped
 off of Joshua Chamas's parser in [Apache::ASP](https://metacpan.org/pod/Apache::ASP). Similarly with the
 [Compiler](https://metacpan.org/pod/CatalystX::ASP::Compiler) and [GlobalASA](https://metacpan.org/pod/CatalystX::ASP::GlobalASA).
-However, the other components are a reimplementations.
+However, the other components are reimplementations.
 
 # CONFIGURATION
 
@@ -66,7 +66,7 @@ of the configuration
       Debug         => 0,
     }):
 
-The following documentation is also plagiarized from Joshau Chamas.
+The following documentation is also plagiarized from Joshua Chamas.
 
 - Global
 
@@ -85,8 +85,8 @@ The following documentation is also plagiarized from Joshau Chamas.
     use of explicitly naming the GlobalPackage is to allow scripts access to globals
     and subs defined in a perl module that is included with commands like:
 
-        __PACKAGE__->config('CatalystX::ASP')
-          ->GlobalPackage('MyApp');
+        __PACKAGE__->config('CatalystX::ASP' => {
+          GlobalPackage => 'MyApp' });
 
 - IncludesDir
 
@@ -98,13 +98,13 @@ The following documentation is also plagiarized from Joshau Chamas.
     applications, whereas placing includes in the Global directory only allows
     sharing between scripts in an application.
 
-        __PACKAGE__->config('CatalystX::ASP')
-          ->IncludesDir('.');
+        __PACKAGE__->config('CatalystX::ASP' => {
+          IncludeDirs => '.' });
 
     Also, multiple includes directories may be set:
 
-        __PACKAGE__->config('CatalystX::ASP')
-          ->IncludesDir(['../shared', '/usr/local/asp/shared']);
+        __PACKAGE__->config('CatalystX::ASP' => {
+          IncludeDirs => ['../shared', '/usr/local/asp/shared'] });
 
     Using IncludesDir in this way creates an includes search path that would look
     like `.`, `Global`, `../shared`, `/usr/local/asp/shared`. The current
@@ -123,16 +123,16 @@ The following documentation is also plagiarized from Joshau Chamas.
     servers to the `MailHost` specified here, should this primary server not be
     working.
 
-        __PACKAGE__->config('CatalystX::ASP')
-          ->MailHost('smtp.yourdomain.com.foobar')
+        __PACKAGE__->config('CatalystX::ASP' => {
+          MailHost => 'smtp.yourdomain.com.foobar' });
 
 - MailFrom
 
     No default. Set this to specify the default mail address placed in the `From:`
     mail header for the `$Server->Mail()` API extension
 
-        __PACKAGE__->config('CatalystX::ASP')
-          ->MailFrom('youremail@yourdomain.com.foobar')
+        __PACKAGE__->config('CatalystX::ASP' => {
+          MailFrom => 'youremail@yourdomain.com.foobar' });
 
 - XMLSubsMatch
 
@@ -143,8 +143,8 @@ The following documentation is also plagiarized from Joshau Chamas.
 
     Please see XML/XSLT section for instructions on its use.
 
-        __PACKAGE__->config('CatalystX::ASP')
-          ->XMLSubsMatch('my:[\w\-]+')
+        __PACKAGE__->config('CatalystX::ASP' => {
+          XMLSubsMatch => 'my:[\w\-]+' });
 
 - Debug
 
@@ -220,12 +220,13 @@ author and try it out for yourself first. You've been warned :-)
 
 # AUTHOR
 
-Steven Leung `<sleung@cpan.org>`
-Joshua Chamas `<asp-dev@chamas.com>`
+- Steven Leung `<sleung@cpan.org>`
+- Joshua Chamas `<asp-dev@chamas.com>`
 
 # SEE ALSO
 
-[Catalyst](https://metacpan.org/pod/Catalyst), [Apache::ASP](https://metacpan.org/pod/Apache::ASP)
+- [Catalyst](https://metacpan.org/pod/Catalyst)
+- [Apache::ASP](https://metacpan.org/pod/Apache::ASP)
 
 # LICENSE AND COPYRIGHT
 

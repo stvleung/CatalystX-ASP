@@ -12,7 +12,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -20,7 +20,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 1.00
+version 1.01
 
 =head1 SYNOPSIS
 
@@ -49,7 +49,7 @@ I<root> directory.
 Just to be clear, the L<Parser|CatalystX::ASP::Parser> is almost totally ripped
 off of Joshua Chamas's parser in L<Apache::ASP>. Similarly with the
 L<Compiler|CatalystX::ASP::Compiler> and L<GlobalASA|CatalystX::ASP::GlobalASA>.
-However, the other components are a reimplementations.
+However, the other components are reimplementations.
 
 =cut
 
@@ -82,7 +82,7 @@ of the configuration
     Debug         => 0,
   }):
 
-The following documentation is also plagiarized from Joshau Chamas.
+The following documentation is also plagiarized from Joshua Chamas.
 
 =over
 
@@ -112,8 +112,8 @@ generated from the file path of the Global directory, and global.asa file. The
 use of explicitly naming the GlobalPackage is to allow scripts access to globals
 and subs defined in a perl module that is included with commands like:
 
-  __PACKAGE__->config('CatalystX::ASP')
-    ->GlobalPackage('MyApp');
+  __PACKAGE__->config('CatalystX::ASP' => {
+    GlobalPackage => 'MyApp' });
 
 =cut
 
@@ -132,13 +132,13 @@ This extension was added so that includes could be easily shared between ASP
 applications, whereas placing includes in the Global directory only allows
 sharing between scripts in an application.
 
-  __PACKAGE__->config('CatalystX::ASP')
-    ->IncludesDir('.');
+  __PACKAGE__->config('CatalystX::ASP' => {
+    IncludeDirs => '.' });
 
 Also, multiple includes directories may be set:
 
-  __PACKAGE__->config('CatalystX::ASP')
-    ->IncludesDir(['../shared', '/usr/local/asp/shared']);
+  __PACKAGE__->config('CatalystX::ASP' => {
+    IncludeDirs => ['../shared', '/usr/local/asp/shared'] });
 
 Using IncludesDir in this way creates an includes search path that would look
 like C<.>, C<Global>, C<../shared>, C</usr/local/asp/shared>. The current
@@ -167,8 +167,8 @@ The mail hosts specified in the Net::Config file will be used as backup SMTP
 servers to the C<MailHost> specified here, should this primary server not be
 working.
 
-  __PACKAGE__->config('CatalystX::ASP')
-    ->MailHost('smtp.yourdomain.com.foobar')
+  __PACKAGE__->config('CatalystX::ASP' => {
+    MailHost => 'smtp.yourdomain.com.foobar' });
 
 =cut
 
@@ -183,8 +183,8 @@ has 'MailHost' => (
 No default. Set this to specify the default mail address placed in the C<From:>
 mail header for the C<< $Server->Mail() >> API extension
 
-  __PACKAGE__->config('CatalystX::ASP')
-    ->MailFrom('youremail@yourdomain.com.foobar')
+  __PACKAGE__->config('CatalystX::ASP' => {
+    MailFrom => 'youremail@yourdomain.com.foobar' });
 
 =cut
 
@@ -203,8 +203,8 @@ L<Apache::ASP/XMLSubs>'s custom tag technology ported to CatalystX::ASP, and can
 
 Please see XML/XSLT section for instructions on its use.
 
-  __PACKAGE__->config('CatalystX::ASP')
-    ->XMLSubsMatch('my:[\w\-]+')
+  __PACKAGE__->config('CatalystX::ASP' => {
+    XMLSubsMatch => 'my:[\w\-]+' });
 
 =cut
 
@@ -595,12 +595,23 @@ author and try it out for yourself first. You've been warned :-)
 
 =head1 AUTHOR
 
-Steven Leung C<< <sleung@cpan.org> >>
-Joshua Chamas C<< <asp-dev@chamas.com> >>
+=over
+
+=item * Steven Leung C<< <sleung@cpan.org> >>
+
+=item * Joshua Chamas C<< <asp-dev@chamas.com> >>
+
+=back
 
 =head1 SEE ALSO
 
-L<Catalyst>, L<Apache::ASP>
+=over
+
+=item * L<Catalyst>
+
+=item * L<Apache::ASP>
+
+=back
 
 =head1 LICENSE AND COPYRIGHT
 
