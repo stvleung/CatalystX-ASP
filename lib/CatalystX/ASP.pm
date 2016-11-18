@@ -12,7 +12,7 @@ use Carp;
 
 with 'CatalystX::ASP::Compiler', 'CatalystX::ASP::Parser';
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 =head1 NAME
 
@@ -20,7 +20,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 =head1 VERSION
 
-version 1.04
+version 1.05
 
 =head1 SYNOPSIS
 
@@ -595,13 +595,9 @@ author and try it out for yourself first. You've been warned :-)
 
 =head1 AUTHOR
 
-=over
+Steven Leung E<lt> sleung@cpan.org E<gt>
 
-=item * Steven Leung C<< <sleung@cpan.org> >>
-
-=item * Joshua Chamas C<< <asp-dev@chamas.com> >>
-
-=back
+Joshua Chamas E<lt> asp-dev@chamas.com E<gt>
 
 =head1 SEE ALSO
 

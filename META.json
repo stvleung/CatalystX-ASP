@@ -1,7 +1,7 @@
 {
    "abstract" : "PerlScript/ASP on Catalyst",
    "author" : [
-      "=over"
+      "Steven Leung < sleung@cpan.org >"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.0.5, CPAN::Meta::Converter version 2.150005",
@@ -89,7 +89,7 @@
          "web" : "https://github.com/stvleung/CatalystX-ASP"
       }
    },
-   "version" : "1.04",
+   "version" : "1.05",
    "x_contributors" : [
       "Steven Leung <sleung@turnitin.com>",
       "Steven Leung <stvleung@gmail.com>"

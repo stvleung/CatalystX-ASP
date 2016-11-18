@@ -4,7 +4,7 @@ CatalystX::ASP - PerlScript/ASP on Catalyst
 
 # VERSION
 
-version 1.04
+version 1.05
 
 # SYNOPSIS
 
@@ -204,8 +204,9 @@ author and try it out for yourself first. You've been warned :-)
 
 # AUTHOR
 
-- Steven Leung `<sleung@cpan.org>`
-- Joshua Chamas `<asp-dev@chamas.com>`
+Steven Leung < sleung@cpan.org >
+
+Joshua Chamas < asp-dev@chamas.com >
 
 # SEE ALSO
 
