@@ -1,0 +1,31 @@
+requires 'Carp';
+requires 'Catalyst', '5.9';
+requires 'Digest::MD5';
+requires 'File::Slurp';
+requires 'HTML::Entities';
+requires 'HTTP::Date';
+requires 'List::Util';
+requires 'Module::Runtime';
+requires 'Moose';
+requires 'MooseX::Types::Path::Tiny';
+requires 'Path::Tiny';
+requires 'Scalar::Util';
+requires 'Text::SimpleTable';
+requires 'Tie::Handle';
+requires 'Tie::Hash';
+requires 'Try::Tiny';
+requires 'URI';
+requires 'URI::Escape';
+requires 'namespace::autoclean';
+
+on build => sub {
+    requires 'Catalyst::Plugin::Session';
+    requires 'Catalyst::Plugin::Session::State::Cookie';
+    requires 'Catalyst::Plugin::Session::Store::File';
+    requires 'DateTime';
+    requires 'ExtUtils::MakeMaker', '6.59';
+    requires 'HTTP::Headers';
+    requires 'Test::Exception';
+    requires 'Test::More';
+    requires 'Text::Lorem';
+};

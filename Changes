@@ -1,5 +1,8 @@
 Revision history for CatalystX-ASP
 
+1.04    Fri Nov 18 00:48:04 2016 -0800
+        - Start using Minilla
+
 1.03    Thu Nov 17 23:37:33 2016 -0800
         - Fix 01-parser.t on catching catalyst_detach
         - https://rt.cpan.org/Public/Bug/Display.html?id=118828
