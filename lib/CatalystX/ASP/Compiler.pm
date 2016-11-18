@@ -196,4 +196,10 @@ no Moose::Role;
 
 =head1 SEE ALSO
 
-L<CatalystX::ASP>, L<CatalystX::ASP::Parser>,
+=over
+
+=item * L<CatalystX::ASP>
+
+=item * L<CatalystX::ASP::Parser>
+
+=back

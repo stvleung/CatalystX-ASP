@@ -30,4 +30,10 @@ __END__
 
 =head1 SEE ALSO
 
-L<Catalyst>, L<Catalyst::Exception>
+=over
+
+=item * L<Catalyst>
+
+=item * L<Catalyst::Exception>
+
+=back

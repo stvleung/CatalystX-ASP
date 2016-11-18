@@ -88,4 +88,10 @@ no Moose::Role;
 
 =head1 SEE ALSO
 
-L<CatalystX::ASP::View> L<CatalystX::ASP::Dispatcher>
+=over
+
+=item * L<CatalystX::ASP::View>
+
+=item * L<CatalystX::ASP::Dispatcher>
+
+=back

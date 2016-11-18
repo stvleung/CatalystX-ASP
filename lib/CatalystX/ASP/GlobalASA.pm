@@ -294,4 +294,8 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 SEE ALSO
 
-L<CatalystX::ASP>
+=over
+
+=item * L<CatalystX::ASP>
+
+=back

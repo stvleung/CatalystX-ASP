@@ -692,5 +692,14 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 SEE ALSO
 
-L<CatalystX::ASP::Session>, L<CatalystX::ASP::Request>,
-L<CatalystX::ASP::Application>, L<CatalystX::ASP::Server>
+=over
+
+=item * L<CatalystX::ASP::Session>
+
+=item * L<CatalystX::ASP::Request>
+
+=item * L<CatalystX::ASP::Application>
+
+=item * L<CatalystX::ASP::Server>
+
+=back

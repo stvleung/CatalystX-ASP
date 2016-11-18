@@ -401,5 +401,14 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 SEE ALSO
 
-L<CatalystX::ASP::Session>, L<CatalystX::ASP::Request>,
-L<CatalystX::ASP::Response>, L<CatalystX::ASP::Application>
+=over
+
+=item * L<CatalystX::ASP::Session>
+
+=item * L<CatalystX::ASP::Request>
+
+=item * L<CatalystX::ASP::Response>
+
+=item * L<CatalystX::ASP::Application>
+
+=back

@@ -162,4 +162,10 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 SEE ALSO
 
-L<CatalystX::ASP::Role>, L<CatalystX::ASP::View>
+=over
+
+=item * L<CatalystX::ASP::Role>
+
+=item * L<CatalystX::ASP::View>
+
+=back
