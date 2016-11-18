@@ -148,9 +148,9 @@ has 'Cookies' => (
         for my $name ( keys %{ $c->response->cookies } ) {
             my $cookie = $c->response->cookies->{$name};
             for my $attr ( keys %$cookie ) {
-                $cookies{$name}{ucfirst( $attr )} = $cookie->$attr;
+                $cookies{$name}{ ucfirst( $attr ) } = $cookie->$attr;
             }
-            if ( all { /.=./ } @{ $cookies{$name}{Value} } ) {
+            if ( all {/.=./} @{ $cookies{$name}{Value} } ) {
                 for ( @{ delete $cookies{$name}{Value} } ) {
                     my ( $key, $val ) = split '=';
                     $cookies{$name}{Value}{$key} = $val;
@@ -410,7 +410,7 @@ sub Cookies {
             }
         } else {
             if ( my $existing = $self->_get_Cookie( $name ) ) {
-                return $existing->{$key}{Value} = $value;
+                return $existing->{Value}{$key} = $value;
             } else {
                 $self->_set_Cookie( $name => { Value => { $key => $value } } );
                 return $value;
@@ -667,17 +667,21 @@ sub _flush_Cookies {
     my $cookies = $self->_get_Cookies;
     for my $name ( keys %$cookies ) {
         my $cookie = $cookies->{$name};
-        for my $key ( keys %$cookie ) {
+        if ( ref $cookie eq 'HASH' ) {
+            for my $key ( keys %$cookie ) {
 
-            # This is really to support Apache::ASP's support hashes in cookies
-            if ( $key =~ m/value/i && ref( $cookie->{$key} ) eq 'HASH' ) {
-                $c->response->cookies->{$name}{value} =
-                    [ map { "$_=" . $cookie->{$key}{$_} } keys %{ $cookie->{$key} } ];
-            } else {
+                # This is really to support Apache::ASP's support hashes in cookies
+                if ( $key =~ m/value/i && ref( $cookie->{$key} ) eq 'HASH' ) {
+                    $c->response->cookies->{$name}{value} =
+                        [ map { "$_=" . $cookie->{$key}{$_} } keys %{ $cookie->{$key} } ];
+                } else {
 
-                # Thankfully, don't need to make 'value' an arrayref for CGI::Simple::Cookie
-                $c->response->cookies->{$name}{lc( $key )} = $cookie->{$key};
+                    # Thankfully, don't need to make 'value' an arrayref for CGI::Simple::Cookie
+                    $c->response->cookies->{$name}{ lc( $key ) } = $cookie->{$key};
+                }
             }
+        } else {
+            $c->response->cookies->{$name}{value} = $cookie;
         }
     }
 }

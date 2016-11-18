@@ -69,7 +69,7 @@ has 'Cookies' => (
         my %cookies;
         for my $name ( keys %{ $c->request->cookies } ) {
             my $value = $c->request->cookies->{$name}{value} || [];
-            if ( all { /.=./ } @$value ) {
+            if ( all {/.=./} @$value ) {
                 for ( @$value ) {
                     my ( $key, $val ) = split '=';
                     $cookies{$name}{$key} = $val;
@@ -310,7 +310,8 @@ sub Cookies {
 
     if ( $name ) {
         if ( $key ) {
-            return $self->_get_Cookie( $name )->{$key};
+            my $cookie = $self->_get_Cookie( $name );
+            return ref $cookie eq 'HASH' ? $cookie->{$key} : $cookie;
         } else {
             return $self->_get_Cookie( $name );
         }

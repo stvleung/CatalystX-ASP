@@ -4,6 +4,10 @@
 </head>
 <body>
   <h1><%= join('', qw(H e l l o)) . ' ' . join('', qw(W o r l d !)) %></h1>
+  <pre style="display: none;">
+    $Request->Cookies( 'gotcha' ) => <%= $Request->Cookies( 'gotcha' ) %>
+    $Request->Cookies( 'another', 'gotcha' ) => <%= $Request->Cookies( 'another', 'gotcha' ) %>
+  </pre>
 </body>
 </html>
 <%

@@ -32,6 +32,9 @@ t/01-parser.t
 t/02-compiler.t
 t/10-server.t
 t/11-request.t
+t/12-response.t
+t/13-session.t
+t/14-application.t
 t/30-testapp.t
 t/lib/Mock/CatalystX/ASP.pm
 t/lib/TestApp.pm
@@ -43,6 +46,7 @@ t/lib/TestApp/root/hello_world.asp
 t/lib/TestApp/root/logout.asp
 t/lib/TestApp/root/redirect.asp
 t/lib/TestApp/root/redirect_permanent.asp
+t/lib/TestApp/root/templates/some_other_template.inc
 t/lib/TestApp/root/templates/some_template.inc
 t/lib/TestApp/root/templates/welcome_body.inc
 t/lib/TestApp/root/templates/welcome_head.inc
