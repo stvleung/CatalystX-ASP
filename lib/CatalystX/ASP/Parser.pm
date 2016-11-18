@@ -336,6 +336,6 @@ no Moose::Role;
 
 =item * L<CatalystX::ASP>
 
-=item * L<CatalystX::ASP::Compiler>,
+=item * L<CatalystX::ASP::Compiler>
 
 =back

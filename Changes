@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+1.08    Fri Nov 18 14:46:46 2016 -0800
+        - More small fixes on documentation
+        - Prematurely released 1.07 without this merge!
+
 1.07    Tue Nov 22 12:34:28 2016 -0800
         - More documentation fixes
         - Require Catalyst 5.90090 when $c->inject_components was included

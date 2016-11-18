@@ -114,7 +114,7 @@ sub compile_include {
     return $self->compile_file( $c, $file );
 }
 
-=item compile_file
+=item $self->compile_file($c, $file)
 
 Takes an C<$file> assuming it exists. This will search for the file in
 C<IncludesDir> and parse it, and assign it a C<$subid> based on it's filename.
