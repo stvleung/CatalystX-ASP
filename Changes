@@ -1,6 +1,8 @@
 Revision history for CatalystX-ASP
 
-{{$NEXT}}
+1.06    Fri Nov 18 11:38:34 2016 -0800
+        - Fix LICENSE back to Perl5
+        - Declare some dependencies for Kwalitee
 
 1.05    Fri Nov 18 01:06:46 2016 -0800
         - Documentation tweaks for Minilla

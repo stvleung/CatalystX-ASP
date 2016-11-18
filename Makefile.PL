@@ -12,7 +12,7 @@ use ExtUtils::MakeMaker 6.64;
 my %WriteMakefileArgs = (
     NAME     => 'CatalystX::ASP',
     DISTNAME => 'CatalystX-ASP',
-    VERSION  => '1.05',
+    VERSION  => '1.06',
     EXE_FILES => [glob('script/*'), glob('bin/*')],
     CONFIGURE_REQUIRES => {
   "ExtUtils::MakeMaker" => "6.64"
@@ -24,6 +24,7 @@ my %WriteMakefileArgs = (
   "Catalyst::Plugin::Session::Store::File" => 0,
   "DateTime" => 0,
   "ExtUtils::MakeMaker" => "6.59",
+  "File::Temp" => 0,
   "HTTP::Headers" => 0,
   "Test::Exception" => 0,
   "Test::More" => 0,
@@ -51,7 +52,10 @@ my %WriteMakefileArgs = (
   "Try::Tiny" => 0,
   "URI" => 0,
   "URI::Escape" => 0,
-  "namespace::autoclean" => 0
+  "namespace::autoclean" => 0,
+  "namespace::clean" => 0,
+  "parent" => 0,
+  "perl" => "5.010"
 }
 ,
 );
