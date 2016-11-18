@@ -1,5 +1,8 @@
 Revision history for CatalystX-ASP
 
+1.00    Thu Nov 17 17:57:23 2016 -0800
+        - First major release 1.00!
+
 0.24    Thu Nov 17 17:06:22 2016 -0800
         - Finalize unit tests
         - Added tests:
