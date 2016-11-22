@@ -1,5 +1,5 @@
 requires 'Carp';
-requires 'Catalyst', '5.9';
+requires 'Catalyst', '5.90090';
 requires 'Digest::MD5';
 requires 'File::Slurp';
 requires 'HTML::Entities';

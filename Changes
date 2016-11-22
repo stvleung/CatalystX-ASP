@@ -1,5 +1,10 @@
 Revision history for CatalystX-ASP
 
+1.07    Tue Nov 22 12:34:28 2016 -0800
+        - More documentation fixes
+        - Require Catalyst 5.90090 when $c->inject_components was included
+        - Don't assume locale is en_US.UTF-8 for error message
+
 1.06    Fri Nov 18 11:38:34 2016 -0800
         - Fix LICENSE back to Perl5
         - Declare some dependencies for Kwalitee

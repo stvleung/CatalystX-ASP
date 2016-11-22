@@ -84,7 +84,10 @@ sub parse_file {
     my ( $self, $c, $file ) = @_;
 
     my $scriptref = eval { read_file( $file, scalar_ref => 1 ); };
-    if ( $@ && $@ =~ /sysopen: No such file or directory/ ) {
+
+    # Asssume $@ =~ /sysopen: No such file or directory/
+    # Don't want to parse error because of possibly different locale than en_US.UTF-8
+    if ( $@ ) {
 
         # To get to this point would mean that some call to $Response->Include()
         # is for a non-existent file

@@ -59,7 +59,7 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
-            "Catalyst" : "5.9",
+            "Catalyst" : "5.90090",
             "Digest::MD5" : "0",
             "File::Slurp" : "0",
             "HTML::Entities" : "0",
@@ -95,7 +95,7 @@
          "web" : "https://github.com/stvleung/CatalystX-ASP"
       }
    },
-   "version" : "1.06",
+   "version" : "1.07",
    "x_contributors" : [
       "Steven Leung <sleung@turnitin.com>",
       "Steven Leung <stvleung@gmail.com>"
