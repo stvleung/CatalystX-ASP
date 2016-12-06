@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+1.09    Tue Dec 6 11:18:40 2016 -0800
+        - Fix case where $c->resp->cookies not from Catalyst
+        - Fix Unix-biased test
+
 1.08    Fri Nov 18 14:46:46 2016 -0800
         - More small fixes on documentation
         - Prematurely released 1.07 without this merge!

@@ -68,6 +68,6 @@ is( $Request->QueryString( 'foobar' ),
     '$Request->QueryString returned correct query string value'
 );
 like( $Request->ServerVariables( 'PATH' ),
-    qr|/usr/bin|,
+    qr|.|,
     '$Request->ServerVariables contains environment variables'
 );

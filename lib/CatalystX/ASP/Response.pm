@@ -148,7 +148,9 @@ has 'Cookies' => (
         for my $name ( keys %{ $c->response->cookies } ) {
             my $cookie = $c->response->cookies->{$name};
             for my $attr ( keys %$cookie ) {
-                $cookies{$name}{ ucfirst( $attr ) } = $cookie->$attr;
+                $cookies{$name}{ ucfirst( $attr ) } = ref $cookie eq 'HASH'
+                    ? $cookie->{$attr}
+                    : $cookie->$attr;
             }
             if ( all {/.=./} @{ $cookies{$name}{Value} } ) {
                 for ( @{ delete $cookies{$name}{Value} } ) {
