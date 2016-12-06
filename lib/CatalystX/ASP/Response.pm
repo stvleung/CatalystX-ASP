@@ -152,7 +152,8 @@ has 'Cookies' => (
                     ? $cookie->{$attr}
                     : $cookie->$attr;
             }
-            if ( all {/.=./} @{ $cookies{$name}{Value} } ) {
+            if ( ref $cookies{$name}{Value} eq 'ARRAY'
+                && all {/.=./} @{ $cookies{$name}{Value} } ) {
                 for ( @{ delete $cookies{$name}{Value} } ) {
                     my ( $key, $val ) = split '=';
                     $cookies{$name}{Value}{$key} = $val;

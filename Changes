@@ -1,5 +1,8 @@
 Revision history for CatalystX-ASP
 
+1.10    Tue Dec 6 14:37:51 2016 -0800
+        - Fix assumption that resp cookies are always arrays
+
 1.09    Tue Dec 6 11:18:40 2016 -0800
         - Fix case where $c->resp->cookies not from Catalyst
         - Fix Unix-biased test
