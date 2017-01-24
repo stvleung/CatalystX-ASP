@@ -4,7 +4,7 @@
       "Steven Leung < sleung@cpan.org >"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.0.6, CPAN::Meta::Converter version 2.150005",
+   "generated_by" : "Minilla/v3.0.9, CPAN::Meta::Converter version 2.150005",
    "license" : [
       "gpl_1"
    ],
@@ -95,7 +95,7 @@
          "web" : "https://github.com/stvleung/CatalystX-ASP"
       }
    },
-   "version" : "1.10",
+   "version" : "1.11",
    "x_contributors" : [
       "Steven Leung <sleung@turnitin.com>",
       "Steven Leung <stvleung@gmail.com>"

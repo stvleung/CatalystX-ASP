@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -54,6 +54,11 @@ is( $Request->FileUpload( 'foofile', 'BrowserFile' ),
 is( $Request->Form( 'foo' ),
     'bar',
     '$Request->Form returned correct form value'
+);
+my %form = %{ $Request->Form };
+is( $form{foo},
+    'bar',
+    '$Request->Form hash returned correct form value'
 );
 is( $Request->Params( 'foobar' ),
     'baz',

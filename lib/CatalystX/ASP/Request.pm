@@ -317,7 +317,7 @@ sub Cookies {
         }
     } else {
         my $cookies = $self->_get_Cookies;
-        return wantarray && ref $cookies eq 'ARRAY' ? %$cookies : $cookies;
+        return wantarray && ref $cookies eq 'HASH' ? %$cookies : $cookies;
     }
 }
 
@@ -357,7 +357,7 @@ sub FileUpload {
         return wantarray && ref $upload eq 'ARRAY' ? @$upload : $upload;
     } else {
         my $uploads = $self->_get_FileUploads;
-        return wantarray && ref $uploads eq 'ARRAY' ? @$uploads : $uploads;
+        return wantarray && ref $uploads eq 'HASH' ? %$uploads : $uploads;
     }
 }
 
@@ -394,7 +394,7 @@ sub Form {
         return wantarray && ref $value eq 'ARRAY' ? @$value : $value;
     } else {
         my $form = $self->_get_Form;
-        return wantarray && ref $form eq 'ARRAY' ? @$form : $form;
+        return wantarray && ref $form eq 'HASH' ? %$form : $form;
     }
 }
 
@@ -422,7 +422,7 @@ sub Params {
         return wantarray && ref $param eq 'ARRAY' ? @$param : $param;
     } else {
         my $params = $self->_get_Params;
-        return wantarray && ref $params eq 'ARRAY' ? @$params : $params;
+        return wantarray && ref $params eq 'HASH' ? %$params : $params;
     }
 }
 
@@ -443,7 +443,7 @@ sub QueryString {
         return wantarray && ref $qparam eq 'ARRAY' ? @$qparam : $qparam;
     } else {
         my $qparams = $self->_get_QueryString;
-        return wantarray && ref $qparams eq 'ARRAY' ? @$qparams : $qparams;
+        return wantarray && ref $qparams eq 'HASH' ? %$qparams : $qparams;
     }
 }
 
@@ -467,7 +467,7 @@ sub ServerVariables {
         return wantarray && ref $var eq 'ARRAY' ? @$var : $var;
     } else {
         my $vars = $self->_get_ServerVariables;
-        return wantarray && ref $vars eq 'ARRAY' ? @$vars : $vars;
+        return wantarray && ref $vars eq 'HASH' ? %$vars : $vars;
     }
 }
 
