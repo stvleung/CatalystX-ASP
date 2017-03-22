@@ -52,17 +52,21 @@ sub process {
     try {
         $self->render( $c, $path );
 
-        my $resp = $self->asp->Response;
-
-        my $charset      = $resp->Charset;
-        my $content_type = $resp->ContentType;
-        $content_type .= "; charset=$charset" if $charset;
-        $c->response->content_type( $content_type );
-        $resp->_flush_Cookies( $c );
-        $c->response->header( Cache_Control => $resp->CacheControl );
-        $c->response->header( Expires => time2str( time + $resp->Expires ) ) if $resp->Expires;
-        $c->response->status( $resp->Status || 200 );
-        $c->response->body( $resp->Body );
+        my $resp   = $self->asp->Response;
+        my $status = $resp->Status;
+        if ( $status >= 500 ) {
+            $c->error( "Erroring out because HTTP Status set to $status" );
+        } else {
+            my $charset      = $resp->Charset;
+            my $content_type = $resp->ContentType;
+            $content_type .= "; charset=$charset" if $charset;
+            $c->response->content_type( $content_type );
+            $resp->_flush_Cookies( $c );
+            $c->response->header( Cache_Control => $resp->CacheControl );
+            $c->response->header( Expires => time2str( time + $resp->Expires ) ) if $resp->Expires;
+            $c->response->status( $resp->Status || 200 );
+            $c->response->body( $resp->Body );
+        }
     } catch {
 
         # Passthrough $c->detach

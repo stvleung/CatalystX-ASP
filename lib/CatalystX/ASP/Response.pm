@@ -620,6 +620,7 @@ sub Redirect {
     my $c = $self->asp->c;
 
     $self->_flush_Cookies( $c );
+    $self->Status( 302 );
     $c->response->redirect( $url );
     $c->detach;
 }
