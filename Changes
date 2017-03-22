@@ -1,5 +1,9 @@
 Revision history for CatalystX-ASP
 
+1.13    Wed Mar 22 11:29:27 2017 -0700
+        - If Status is set to 500, then error in Catalyst
+        - Set $Redirect->{Status} to 302 on redirects
+
 1.12    Wed Jan 25 13:10:43 2017 -0800
         - Shouldn't return list for Hash attrs
 
