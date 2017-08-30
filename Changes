@@ -1,5 +1,8 @@
 Revision history for CatalystX-ASP
 
+1.14    Tue Aug 29 23:55:46 2017 -0700
+        - If IncludesDir is relative, prepend Catalyst root
+
 1.13    Wed Mar 22 11:29:27 2017 -0700
         - If Status is set to 500, then error in Catalyst
         - Set $Redirect->{Status} to 302 on redirects
